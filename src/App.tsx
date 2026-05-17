@@ -22,6 +22,7 @@ import { BaumolInsight } from '@/src/components/BaumolInsight';
 import { ControlPanel } from '@/src/components/ControlPanel';
 import { MitigationChecklist } from '@/src/components/MitigationChecklist';
 import { FinancialImpact } from '@/src/components/FinancialImpact';
+import { ScenarioTimeline } from '@/src/components/ScenarioTimeline';
 
 export default function App() {
   const [params, setParams] = useState<SimulationParameters>(INITIAL_PARAMETERS);
@@ -113,7 +114,7 @@ export default function App() {
               Simulador de Transição
             </h1>
             <p className="text-slate-500 text-xs sm:text-sm mt-1 font-medium italic">
-              Impacto da Jornada 40h · Análise Operacional e Estratégias de Mitigação
+              Impacto da Jornada 44h · Análise Operacional e Estratégias de Mitigação
             </p>
           </div>
 
@@ -192,6 +193,11 @@ export default function App() {
               employeeCount={params.employeeCount}
               targetHours={params.targetHours}
             />
+
+            <ScenarioTimeline 
+              params={params}
+              strategies={strategies}
+            />
           </div>
 
           {/* CONTROLES — order-1 no mobile (acima), esquerda no desktop */}
@@ -206,7 +212,7 @@ export default function App() {
               title="Funcionários Equivalentes"
               value={`+${results.fteToHire.toFixed(1)}`}
               subtitle={`Para manter o nível de serviço. Arredondado: ${results.fteToHireRounded} contratações.`}
-              trend="Cálculo baseado em FTE"
+              trend="Cálculo baseado em FTE (Full Time Equivalent), equivalente a tempo integral"
               icon={Users}
             />
 

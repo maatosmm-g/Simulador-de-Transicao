@@ -72,13 +72,13 @@ export function ControlPanel({ params, setParams }: ControlPanelProps) {
 
           <div className="space-y-3 pt-2">
             <label className="text-[11px] font-black text-slate-700 uppercase tracking-tight">Meta de Jornada</label>
-            <div className="flex gap-2">
-              {[44, 40, 36].map((h) => (
+            <div className="flex gap-2 flex-wrap">
+              {[44, 40, 39, 38, 37, 36].map((h) => (
                 <button
                   key={h}
                   onClick={() => setParams({ ...params, targetHours: h })}
                   className={cn(
-                    "flex-1 py-3 text-xs rounded-xl transition-all border touch-manipulation min-h-[44px] tabular-nums",
+                    "flex-1 py-3 text-xs rounded-xl transition-all border touch-manipulation min-h-[44px] min-w-[50px] tabular-nums",
                     params.targetHours === h
                       ? "bg-indigo-600 border-indigo-700 font-black text-white shadow-lg shadow-indigo-100"
                       : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 font-bold active:bg-slate-50"
