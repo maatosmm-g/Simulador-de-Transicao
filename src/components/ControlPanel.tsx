@@ -4,9 +4,13 @@ import { cn } from '@/src/lib/utils';
 interface ControlPanelProps {
   params: SimulationParameters;
   setParams: (params: SimulationParameters) => void;
+  lastValidHours: number;
+  isInterlocked: boolean;
+  currentHoursSelection: number;
+  onTargetHoursChange: (hours: number) => void;
 }
 
-export function ControlPanel({ params, setParams }: ControlPanelProps) {
+export function ControlPanel({ params, setParams, lastValidHours, isInterlocked, currentHoursSelection, onTargetHoursChange }: ControlPanelProps) {
   const { TAX_MULTIPLIER, WEEKS_PER_MONTH } = MODEL_CALIBRATION;
 
   const formatBR = (val: number) =>
@@ -73,21 +77,32 @@ export function ControlPanel({ params, setParams }: ControlPanelProps) {
           <div className="space-y-3 pt-2">
             <label className="text-[11px] font-black text-slate-700 uppercase tracking-tight">Meta de Jornada</label>
             <div className="flex gap-2 flex-wrap">
-              {[44, 40, 39, 38, 37, 36].map((h) => (
-                <button
-                  key={h}
-                  onClick={() => setParams({ ...params, targetHours: h })}
-                  className={cn(
-                    "flex-1 py-3 text-xs rounded-xl transition-all border touch-manipulation min-h-[44px] min-w-[50px] tabular-nums",
-                    params.targetHours === h
-                      ? "bg-indigo-600 border-indigo-700 font-black text-white shadow-lg shadow-indigo-100"
-                      : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 font-bold active:bg-slate-50"
-                  )}
-                >
-                  {h}h
-                </button>
-              ))}
+              {[44, 40, 39, 38, 37, 36].map((h) => {
+                const isActive = currentHoursSelection === h;
+                const isThisInvalid = isInterlocked && isActive;
+                return (
+                  <button
+                    key={h}
+                    onClick={() => onTargetHoursChange(h)}
+                    className={cn(
+                      "flex-1 py-3 text-xs rounded-xl transition-all border touch-manipulation min-h-[44px] min-w-[50px] tabular-nums font-bold",
+                      isThisInvalid
+                        ? "bg-rose-500 border-rose-600 font-black text-white shadow-lg shadow-rose-100 animate-pulse"
+                        : isActive
+                          ? "bg-indigo-600 border-indigo-700 font-black text-white shadow-lg shadow-indigo-100"
+                          : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 active:bg-slate-50"
+                    )}
+                  >
+                    {h}h
+                  </button>
+                );
+              })}
             </div>
+            {isInterlocked && (
+              <p className="text-[10px] text-rose-500 font-black uppercase tracking-tight mt-1 leading-normal">
+                ⚠️ Transição Travada! Salto de jornada detectado. Siga a ordem gradual (ou clique para voltar).
+              </p>
+            )}
           </div>
         </div>
 

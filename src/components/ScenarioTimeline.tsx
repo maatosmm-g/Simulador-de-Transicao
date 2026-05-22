@@ -7,9 +7,10 @@ import { cn } from '@/src/lib/utils';
 interface ScenarioTimelineProps {
   params: SimulationParameters;
   strategies: MitigationStrategy[];
+  lastValidHours: number;
 }
 
-export function ScenarioTimeline({ params, strategies }: ScenarioTimelineProps) {
+export function ScenarioTimeline({ params, strategies, lastValidHours }: ScenarioTimelineProps) {
   const { INTENSITY_ABSORPTION } = MODEL_CALIBRATION;
 
   const scenarios = [44, 40, 39, 38, 37, 36];
@@ -18,7 +19,7 @@ export function ScenarioTimeline({ params, strategies }: ScenarioTimelineProps) 
     const baselineH = params.employeeCount * 44;
     const boost = strategies.reduce((acc, s) => acc + (s.active ? s.productivityBoost : 0), 0);
 
-    const currentIndex = scenarios.indexOf(params.targetHours);
+    const currentIndex = scenarios.indexOf(lastValidHours);
     const activeScenarios = scenarios.slice(0, currentIndex + 1);
 
     return activeScenarios.map(hours => {
@@ -104,7 +105,7 @@ export function ScenarioTimeline({ params, strategies }: ScenarioTimelineProps) 
                   cx={x}
                   cy={y}
                   r="4"
-                  className={cn("fill-white stroke-2", d.hours === params.targetHours ? "stroke-indigo-600 r-5" : "stroke-slate-300")}
+                  className={cn("fill-white stroke-2", d.hours === lastValidHours ? "stroke-indigo-600 r-5" : "stroke-slate-300")}
                 />
               );
             })}
@@ -127,7 +128,7 @@ export function ScenarioTimeline({ params, strategies }: ScenarioTimelineProps) 
                 key={d.hours} 
                 className={cn(
                   "group transition-colors",
-                  d.hours === params.targetHours ? "bg-indigo-50/50" : "hover:bg-slate-50/50"
+                  d.hours === lastValidHours ? "bg-indigo-50/50" : "hover:bg-slate-50/50"
                 )}
               >
                 <td className="py-3 px-5 sm:px-0">
@@ -135,7 +136,7 @@ export function ScenarioTimeline({ params, strategies }: ScenarioTimelineProps) 
                     <div className={cn("w-1.5 h-1.5 rounded-full", d.bgColor)} />
                     <span className={cn(
                       "text-xs tabular-nums font-black",
-                      d.hours === params.targetHours ? "text-indigo-600" : "text-slate-600"
+                      d.hours === lastValidHours ? "text-indigo-600" : "text-slate-600"
                     )}>
                       {d.hours}h
                     </span>
