@@ -8,24 +8,34 @@ interface ScenarioTimelineProps {
   params: SimulationParameters;
   strategies: MitigationStrategy[];
   lastValidHours: number;
+  currentHoursSelection: number;
 }
 
-export function ScenarioTimeline({ params, strategies, lastValidHours }: ScenarioTimelineProps) {
+export function ScenarioTimeline({ params, strategies, lastValidHours, currentHoursSelection }: ScenarioTimelineProps) {
   const { INTENSITY_ABSORPTION } = MODEL_CALIBRATION;
 
-  // Lista estática e imutável para garantir previsibilidade e comparação visual completa
-  const scenarios = useMemo(() => [44, 40, 39, 38, 37, 36], []);
+  // Lista sequencial estática para guiar a progressão visual
+  const SEQ = useMemo(() => [44, 40, 39, 38, 37, 36], []);
 
   const timelineData = useMemo(() => {
     const boost = strategies.reduce((acc, s) => acc + (s.active ? s.productivityBoost : 0), 0);
 
-    return scenarios.map(hours => {
-      // 1. Aplicação rigorosa do Efeito Baumol para cálculo de perda horária real (Não-Linear)
-      const rawLossFactor = hours < 44 ? Math.pow((44 - hours) / 44, INTENSITY_ABSORPTION) : 0;
+    // Encontra até onde o usuário já avançou na meta de transição
+    // Usamos lastValidHours ou currentHoursSelection para travar o progresso na última etapa segura
+    const limitIndex = SEQ.indexOf(currentHoursSelection);
+    const visibleScenarios = limitIndex !== -1 ? SEQ.slice(0, limitIndex + 1) : [44];
+
+    return visibleScenarios.map(hours => {
+      // 1. Sincronização Matemática Perfeita com o Motor do App.tsx
+      const baselineH = params.employeeCount * 44;
+      const futureH = params.employeeCount * hours;
+      const mitigatedH = futureH * (1 + boost);
       
-      // O ganho de eficiência das ferramentas atenua esse fator de perda
-      const mitigatedLossFactor = Math.max(0, rawLossFactor * (1 - boost));
-      const deficitPercent = mitigatedLossFactor * 100;
+      // Cálculo exato da retenção (%) idêntico ao do App.tsx
+      const capacityRetention = baselineH > 0 ? (mitigatedH / baselineH) * 100 : 100;
+      
+      // O Déficit Real é o complemento da capacidade que foi retida/salva
+      const deficitPercent = Math.max(0, 100 - capacityRetention);
 
       // 2. Cálculo do ajuste necessário de esforço comercial por hora ativa
       const rawIncrease = hours > 0 ? ((44 / hours) - 1) * 100 : 0;
@@ -63,14 +73,14 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
         bgColor
       };
     });
-  }, [scenarios, strategies, INTENSITY_ABSORPTION]);
+  }, [SEQ, params.employeeCount, strategies, currentHoursSelection]);
 
-  // Cálculo dinâmico dos pontos do SVG Sparkline baseado na matriz fixa de cenários
+  // Parâmetros do minichart (Sparkline)
   const chartWidth = 200;
   const chartHeight = 40;
   
   const points = useMemo(() => {
-    // Encontra o teto máximo de déficit para normalizar o eixo Y do Sparkline de forma proporcional
+    if (timelineData.length <= 1) return "0,20 200,20"; // Linha reta estável se só houver 44h ativa
     const maxDeficit = Math.max(...timelineData.map(d => d.deficit), 1);
     
     return timelineData.map((d, i) => {
@@ -88,29 +98,34 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
             <Clock size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Timeline de Cenários</h3>
+            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Timeline Gradativo de Transição</h3>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none mt-1">
-              Status de degradação operacional comparada
+              Etapas reveladas de acordo com a meta de jornada selecionada
             </p>
           </div>
         </div>
         
-        {/* Sparkline Micro Chart Dinâmico */}
+        {/* Sparkline Dinâmico */}
         <div className="hidden sm:block">
           <svg width={chartWidth} height={chartHeight} className="overflow-visible">
-            <path
-              d={`M ${points}`}
-              fill="none"
-              stroke="#6366f1"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            {timelineData.length > 1 && (
+              <motion.path
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                d={`M ${points}`}
+                fill="none"
+                stroke="#6366f1"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            )}
             {timelineData.map((d, i) => {
               const maxDeficit = Math.max(...timelineData.map(t => t.deficit), 1);
-              const x = (i / (timelineData.length - 1)) * chartWidth;
+              const x = timelineData.length > 1 ? (i / (timelineData.length - 1)) * chartWidth : 0;
               const y = chartHeight - (d.deficit / maxDeficit) * chartHeight;
-              const isSelected = d.hours === lastValidHours;
+              const isSelected = d.hours === currentHoursSelection;
 
               return (
                 <circle
@@ -129,7 +144,7 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
         </div>
       </div>
 
-      {/* Tabela de Cenários */}
+      {/* Tabela Progressiva */}
       <div className="overflow-x-auto -mx-5 sm:mx-0">
         <table className="w-full text-left">
           <thead>
@@ -142,10 +157,13 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
           </thead>
           <tbody className="divide-y divide-slate-50">
             {timelineData.map((d) => {
-              const isSelected = d.hours === lastValidHours;
+              const isSelected = d.hours === currentHoursSelection;
 
               return (
-                <tr 
+                <motion.tr 
+                  layout
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
                   key={d.hours} 
                   className={cn(
                     "group transition-colors duration-200",
@@ -192,18 +210,17 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
                       </span>
                     </div>
                   </td>
-                </tr>
+                </motion.tr>
               );
             })}
           </tbody>
         </table>
       </div>
 
-      {/* Quick Insight Footer */}
       <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2">
         <TrendingUp size={14} className="text-slate-400" />
         <p className="text-[10px] text-slate-500 font-medium leading-tight">
-          Déficit não-linear estruturado com amortecimento elástico via Efeito Baumol e atenuantes de eficiência ativa.
+          Visualização em cascata ativada. Novas faixas de impacto surgem dinamicamente conforme o avanço do cronograma de transição.
         </p>
       </div>
     </div>

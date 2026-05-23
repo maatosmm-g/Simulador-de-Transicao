@@ -13,6 +13,7 @@ interface FinancialImpactProps {
   targetHours: number;
   grossMargin?: number;
   totalBoost?: number;             
+  totalClientsLost?: number;
 }
 
 export function FinancialImpact({

@@ -285,6 +285,7 @@ export default function App() {
               params={params}
               strategies={strategies}
               lastValidHours={lastValidHours}
+              currentHoursSelection={currentHoursSelection}
             />
           </div>
 
