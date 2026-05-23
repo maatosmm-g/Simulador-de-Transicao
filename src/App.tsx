@@ -6,7 +6,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/src/lib/utils';
-import { Users, TrendingDown, TrendingUp, Zap } from 'lucide-react';
+import { Users, TrendingDown } from 'lucide-react';
 
 import {
   INITIAL_PARAMETERS,
@@ -60,7 +60,7 @@ export default function App() {
     }
   };
 
-  const toggleStrategy = (id: string) => {
+  const toggleStrategy = (id: MitigationStrategy['id']) => {
     setStrategies(prev => prev.map(s => s.id === id ? { ...s, active: !s.active } : s));
   };
 
@@ -68,24 +68,27 @@ export default function App() {
     const {
       INTENSITY_ABSORPTION, PEAK_HOURS_RATIO,
       ABANDONMENT_BASE, ABANDONMENT_SENSITIVITY, ABANDONMENT_CEIL,
-      MAX_LOSS_RATIO, TAX_MULTIPLIER,
+      MAX_LOSS_RATIO, TAX_MULTIPLIER, WEEKS_PER_MONTH,
     } = MODEL_CALIBRATION;
 
+    // Se estiver bloqueado por salto de etapa, forçamos os resultados operacionais a refletirem a última zona segura
+    const effectiveTargetHours = isInterlocked ? lastValidHours : params.targetHours;
+
     const baselineH = params.employeeCount * params.currentHours;
-    const futureH = params.employeeCount * params.targetHours;
+    const futureH = params.employeeCount * effectiveTargetHours;
     const boost = strategies.reduce((acc, s) => acc + (s.active ? s.productivityBoost : 0), 0);
 
     const mitigatedH = futureH * (1 + boost);
     const deficitH = Math.max(0, baselineH - mitigatedH);
-    const fteToHire = params.targetHours > 0 ? deficitH / params.targetHours : 0;
+    const fteToHire = effectiveTargetHours > 0 ? deficitH / effectiveTargetHours : 0;
 
-    // Atendimentos totais possíveis no cenário base
+    // Atendimentos totais possíveis no cenário base (Semanal)
     const baselineAttendances = baselineH * params.avgProductivity;
 
     // Déficit efetivo após absorção por intensidade
     const effectiveDeficitH = Math.max(0, deficitH - (baselineH * INTENSITY_ABSORPTION));
 
-    // Taxa de desistência progressiva
+    // Taxa de desistência progressiva ajustada pelo Baumol Elástico
     const deficitPerEmployee = params.employeeCount > 0 ? effectiveDeficitH / params.employeeCount : 0;
     const abandonmentRate = Math.min(
       ABANDONMENT_CEIL,
@@ -95,13 +98,31 @@ export default function App() {
     const peakHoursLost = effectiveDeficitH * PEAK_HOURS_RATIO;
     const theoreticalLoss = peakHoursLost * params.avgProductivity;
 
-    const realisticClientLoss = Math.min(
+    const realisticClientLossWeekly = Math.min(
       theoreticalLoss * abandonmentRate,
       baselineAttendances * MAX_LOSS_RATIO
     );
 
-    const isReduction = params.targetHours < params.currentHours;
-    const clientLoss = isReduction ? Math.round(realisticClientLoss) : 0;
+    const isReduction = effectiveTargetHours < params.currentHours;
+    
+    // Converte a perda semanal de clientes diretamente para a base mensal exigida pelas interfaces
+    const clientLoss = isReduction ? Math.round(realisticClientLossWeekly * WEEKS_PER_MONTH) : 0;
+
+    // --- Cálculo RAW (Sem mitigações) convertido para base mensal ---
+    const deficitHRaw = isReduction ? Math.max(0, baselineH - futureH) : 0;
+    const effectiveDeficitHRaw = Math.max(0, deficitHRaw - (baselineH * INTENSITY_ABSORPTION));
+    const deficitPerEmployeeRaw = params.employeeCount > 0 ? effectiveDeficitHRaw / params.employeeCount : 0;
+    const abandonmentRateRaw = Math.min(
+      ABANDONMENT_CEIL,
+      ABANDONMENT_BASE + (deficitPerEmployeeRaw * ABANDONMENT_SENSITIVITY)
+    );
+    const peakHoursLostRaw = effectiveDeficitHRaw * PEAK_HOURS_RATIO;
+    const theoreticalLossRaw = peakHoursLostRaw * params.avgProductivity;
+    const realisticClientLossRawWeekly = Math.min(
+      theoreticalLossRaw * abandonmentRateRaw,
+      baselineAttendances * MAX_LOSS_RATIO
+    );
+    const clientLossRaw = isReduction ? Math.round(realisticClientLossRawWeekly * WEEKS_PER_MONTH) : 0;
 
     const capacityRetention = baselineH > 0 ? (mitigatedH / baselineH) * 100 : 100;
 
@@ -111,7 +132,7 @@ export default function App() {
       0
     );
 
-    // 👷 Custo unitário e total de contratação (já considerando FTE inteiro)
+    // 👷 Custo unitário e total de contratação (FTE)
     const taxMultiplier = TAX_MULTIPLIER[params.taxRegime];
     const hiringUnitCost = params.avgSalary * taxMultiplier;
     const fteToHireRounded = Math.ceil(fteToHire);
@@ -127,6 +148,7 @@ export default function App() {
       baselineAttendances,
       mitigatedAttendances: mitigatedH * params.avgProductivity,
       clientLoss,
+      clientLossRaw,
       capacityRetention,
       totalBoost: boost * 100,
       activeMitigationCost,
@@ -134,7 +156,7 @@ export default function App() {
       totalHiringCost,
       abandonmentRate,
     };
-  }, [params, strategies]);
+  }, [params, strategies, isInterlocked, lastValidHours]);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-600 selection:text-white p-3 sm:p-4 md:p-6">
@@ -203,10 +225,10 @@ export default function App() {
           )}
         </header>
 
-        {/* Bento Grid — Mobile-first com order */}
+        {/* Bento Grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
 
-          {/* ANÁLISE CENTRAL — primeiro no mobile (order-1), centro no desktop */}
+          {/* ANÁLISE CENTRAL */}
           <div className="order-2 md:order-2 md:col-span-6 space-y-4 md:space-y-6">
             {isInterlocked ? (
               <div className="space-y-4 md:space-y-6">
@@ -233,6 +255,7 @@ export default function App() {
 
                 <FinancialImpact
                   lostClientsWeekly={results.clientLoss}
+                  lostClientsWeeklyRaw={results.clientLossRaw}
                   avgTicket={params.avgTicket}
                   monthlyHiringCost={results.hiringUnitCost}
                   totalHiringCost={results.totalHiringCost}
@@ -241,6 +264,8 @@ export default function App() {
                   currentHours={params.currentHours}
                   targetHours={params.targetHours}
                   grossMargin={params.grossMargin}
+                  totalBoost={results.totalBoost}
+                  totalClientsLost={results.clientLoss} // Injetado para manter consistência direta com a base mensalizada
                 />
 
                 <OperationPanel
@@ -263,7 +288,7 @@ export default function App() {
             />
           </div>
 
-          {/* CONTROLES — order-1 no mobile (acima), esquerda no desktop */}
+          {/* CONTROLES */}
           <div className="order-1 md:order-1 md:col-span-3 flex flex-col gap-4 md:gap-6">
             <ControlPanel 
               params={params} 
@@ -282,13 +307,13 @@ export default function App() {
             />
           </div>
 
-          {/* MÉTRICAS DE DECISÃO — order-3 no mobile (final), direita no desktop */}
+          {/* MÉTRICAS DE DECISÃO */}
           <div className="order-3 md:order-3 md:col-span-3 space-y-4 md:space-y-6">
             <MetricCard
               title="Funcionários Equivalentes"
               value={`+${results.fteToHire.toFixed(1)}`}
               subtitle={`Para manter o nível de serviço. Arredondado: ${results.fteToHireRounded} contratações.`}
-              trend="Cálculo baseado em FTE (Full Time Equivalent), equivalente a tempo integral"
+              trend="Cálculo baseado em FTE (Full Time Equivalent)"
               icon={Users}
               isLocked={isInterlocked}
             />
@@ -297,8 +322,8 @@ export default function App() {
               variant="danger"
               title="Vendas em Risco"
               value={`-${Math.round(results.clientLoss)}`}
-              subtitle="Filas aumentam, atendimento menos personalizado, queda na conversão de vendas, gerente/dono volta p/ o operacional."
-              trend="A estrutura permanece, mas o impacto piora"
+              subtitle="Filas aumentam, compressão de tempo de atendimento e degradação da conversão de vendas mensais."
+              trend="A estrutura permanece, mas a perda é real"
               icon={TrendingDown}
               isLocked={isInterlocked}
             />

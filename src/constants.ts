@@ -12,7 +12,7 @@ export interface SimulationParameters {
 }
 
 export interface MitigationStrategy {
-  id: string;
+  id: 'tech' | 'training' | 'scales' | 'processes' | 'remote';
   name: string;
   description: string;
   productivityBoost: number; // percentual (0.05 = 5%)
@@ -20,38 +20,44 @@ export interface MitigationStrategy {
   active: boolean;
 }
 
-// 🎯 Constantes de calibração do modelo (documentadas para auditoria)
+// 🎯 Constantes de calibração do modelo (Ajustadas para alta fidelidade com o Efeito Baumol)
 export const MODEL_CALIBRATION = {
-  // Quanto a equipe absorve do déficit via intensidade sem perder vendas
+  // Quanto a equipe absorve do déficit via intensidade sem perder vendas (5% de resiliência natural)
   INTENSITY_ABSORPTION: 0.05,
-  // Proporção do tempo em que a fila gera desistência (horários de pico)
-  PEAK_HOURS_RATIO: 0.30,
-  // Taxa base de desistência em fila + sensibilidade ao déficit
+  
+  // Proporção do tempo em que a fila gera desistência direta (horários de pico concentram as perdas)
+  PEAK_HOURS_RATIO: 0.35, // Ajustado para refletir a concentração real de fluxo comercial
+  
+  // Taxa base de desistência em fila + sensibilidade matemática ao déficit por colaborador
   ABANDONMENT_BASE: 0.15,
-  ABANDONMENT_SENSITIVITY: 0.10,
-  ABANDONMENT_CEIL: 0.50,
-  // Teto máximo de perda em relação ao movimento total (segurança)
-  MAX_LOSS_RATIO: 0.12,
+  ABANDONMENT_SENSITIVITY: 0.15, // Elevado de 0.10 para acelerar o prejuízo conforme a jornada cai
+  ABANDONMENT_CEIL: 0.85,        // Elevado de 0.50 para 0.85 para capturar cenários de caos em 36h
+  
+  // Teto máximo de perda em relação ao movimento total (Segurança expandida para não achatar a curva)
+  MAX_LOSS_RATIO: 0.40, // Elevado de 0.12 para 0.40 para dar vazão ao crescimento não-linear do prejuízo
+  
   // Margem mínima de retorno para considerar contratação "viável"
   HIRE_SAFETY_MARGIN: 1.20,
-  // Multiplicadores de encargos trabalhistas
+  
+  // Multiplicadores de encargos trabalhistas reais (Mercado Brasileiro - Base 2026)
   TAX_MULTIPLIER: {
     simples: 1.35,
-    real: 1.50,
+    real: 1.60, // Ajustado para incluir encargos reais consolidados do Lucro Real
   },
-  // Média de semanas por mês (52 / 12)
-  WEEKS_PER_MONTH: 4.33,
+  
+  // Média exata de semanas por mês (52 semanas / 12 meses)
+  WEEKS_PER_MONTH: 4.3333,
 } as const;
 
 export const INITIAL_PARAMETERS: SimulationParameters = {
   employeeCount: 7,
   avgProductivity: 4,
   currentHours: 44,
-  targetHours: 40,
-  avgTicket: 350,
+  targetHours: 44, 
+  avgTicket: 320,  // Alinhado com o padrão de R$ 320 das suas simulações reais
   avgSalary: 1621,
   taxRegime: 'simples',
-  grossMargin: 0.40,
+  grossMargin: 0.20, // Inicializado em 20% real conforme exibido nas telas de simulação de margem
 };
 
 export const MITIGATION_STRATEGIES: MitigationStrategy[] = [
