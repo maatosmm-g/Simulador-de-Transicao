@@ -24,6 +24,7 @@ import { MitigationChecklist } from '@/src/components/MitigationChecklist';
 import { FinancialImpact } from '@/src/components/FinancialImpact';
 import { ScenarioTimeline } from '@/src/components/ScenarioTimeline';
 import { InterlockingPanel } from '@/src/components/InterlockingPanel';
+import { SalesTargetCard } from '@/src/components/SalesTargetCard';
 
 export default function App() {
   const [params, setParams] = useState<SimulationParameters>(() => ({
@@ -208,11 +209,18 @@ export default function App() {
           {/* ANÁLISE CENTRAL — primeiro no mobile (order-1), centro no desktop */}
           <div className="order-2 md:order-2 md:col-span-6 space-y-4 md:space-y-6">
             {isInterlocked ? (
-              <InterlockingPanel 
-                lastValidHours={lastValidHours}
-                currentHoursSelection={currentHoursSelection}
-                onResume={handleTargetHoursChange}
-              />
+              <div className="space-y-4 md:space-y-6">
+                <InterlockingPanel 
+                  lastValidHours={lastValidHours}
+                  currentHoursSelection={currentHoursSelection}
+                  onResume={handleTargetHoursChange}
+                />
+                <SalesTargetCard 
+                  params={params}
+                  strategies={strategies}
+                  isLocked={true}
+                />
+              </div>
             ) : (
               <>
                 <MetricCard
@@ -239,6 +247,12 @@ export default function App() {
                   employeeCount={params.employeeCount}
                   targetHours={params.targetHours}
                 />
+
+                <SalesTargetCard 
+                  params={params}
+                  strategies={strategies}
+                  isLocked={false}
+                />
               </>
             )}
 
@@ -259,7 +273,13 @@ export default function App() {
               currentHoursSelection={currentHoursSelection}
               onTargetHoursChange={handleTargetHoursChange}
             />
-            <MitigationChecklist strategies={strategies} toggleStrategy={toggleStrategy} />
+            <MitigationChecklist 
+              strategies={strategies} 
+              toggleStrategy={toggleStrategy} 
+              totalBoost={results.totalBoost}
+              activeMitigationCost={results.activeMitigationCost}
+              isInterlocked={isInterlocked}
+            />
           </div>
 
           {/* MÉTRICAS DE DECISÃO — order-3 no mobile (final), direita no desktop */}
@@ -282,34 +302,6 @@ export default function App() {
               icon={TrendingDown}
               isLocked={isInterlocked}
             />
-
-            <div className="bg-slate-900 rounded-2xl p-5 sm:p-6 text-white flex flex-col justify-center relative overflow-hidden group border border-slate-800">
-              <TrendingUp className="absolute -right-6 -bottom-6 opacity-5 group-hover:opacity-10 transition-opacity" size={120} />
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="p-1.5 bg-indigo-500 text-white rounded-lg shadow-lg">
-                    <Zap size={14} fill="currentColor" />
-                  </span>
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">
-                    Ganhos de Eficiência
-                  </h3>
-                </div>
-                <p className="text-[11px] leading-relaxed text-slate-300 font-medium italic">
-                  {isInterlocked ? (
-                    "Selecione o cenário correto na sequência gradual para visualizar os ganhos de eficiência."
-                  ) : (
-                    <>Através das mitigações selecionadas, você recupera <span className="text-white font-black underline decoration-indigo-500 decoration-2 underline-offset-4">{results.totalBoost.toFixed(0)}%</span> da capacidade perdida.</>
-                  )}
-                </p>
-                {results.activeMitigationCost > 0 && !isInterlocked && (
-                  <p className="text-[11px] text-indigo-400 mt-4 font-black tracking-widest uppercase">
-                    Custo adicional: <span className="text-white">
-                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(results.activeMitigationCost)}
-                    </span>
-                  </p>
-                )}
-              </div>
-            </div>
 
             <BaumolInsight />
           </div>

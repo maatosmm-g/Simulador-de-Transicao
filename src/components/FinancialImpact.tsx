@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { TrendingDown, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { TrendingDown, CheckCircle2, XCircle, Coins, HeartCrack, Activity } from 'lucide-react';
 import { MODEL_CALIBRATION } from '@/src/constants';
 
 interface FinancialImpactProps {
@@ -33,11 +33,9 @@ export function FinancialImpact({
 
   const { WEEKS_PER_MONTH, HIRE_SAFETY_MARGIN } = MODEL_CALIBRATION;
 
-  // Perda de faturamento bruto
+  // Perda de margem de contribuição (o que realmente some do bolso do empresário)
   const weeklyLoss = safeLostClients * safeAvgTicket;
   const monthlyLoss = weeklyLoss * WEEKS_PER_MONTH;
-
-  // Perda de margem de contribuição (o que realmente importa)
   const monthlyProfitLoss = monthlyLoss * grossMargin;
 
   // Custo total da decisão = contratar + mitigações já ativas
@@ -49,7 +47,7 @@ export function FinancialImpact({
     maximumFractionDigits: 0,
   });
 
-  // Viável SE a margem de contribuição perdida cobre o custo total com 20% de folga
+  // Viabilidade: lucrativo se a margem de contribuição recuperada cobre o custo total com margem de segurança de 20%
   const shouldHire = monthlyProfitLoss > (totalDecisionCost * HIRE_SAFETY_MARGIN);
   const coversBareMinimum = monthlyProfitLoss > totalDecisionCost;
 
@@ -58,23 +56,23 @@ export function FinancialImpact({
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="p-5 sm:p-6 bg-slate-900 border-2 border-slate-800 rounded-2xl shadow-2xl overflow-hidden relative"
+        className="p-5 sm:p-6 bg-slate-900 border-2 border-slate-800 rounded-2xl shadow-xl overflow-hidden relative"
       >
         <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-emerald-500/10 to-transparent pointer-events-none" />
-        <h4 className="text-base sm:text-lg font-black text-white mb-5 flex items-center gap-3 uppercase tracking-tight">
+        <h4 className="text-sm font-black text-white mb-5 flex items-center gap-3 uppercase tracking-tight">
           <span className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg">
-            <CheckCircle2 size={20} />
+            <CheckCircle2 size={16} />
           </span>
           Equilíbrio Operacional Mantido
         </h4>
-        <div className="flex flex-col items-center justify-center p-6 sm:p-8 bg-white/5 rounded-xl border border-white/10 text-center">
-          <div className="bg-emerald-500 text-slate-900 rounded-full p-3 mb-4">
-            <CheckCircle2 size={36} />
+        <div className="flex flex-col items-center justify-center p-6 text-center">
+          <div className="bg-emerald-500 text-slate-900 rounded-full p-2.5 mb-3">
+            <CheckCircle2 size={24} />
           </div>
-          <h5 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight mb-2">
+          <h5 className="text-base font-black text-white uppercase tracking-tight mb-1">
             Capacidade Adequada
           </h5>
-          <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+          <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
             Sua jornada atual de <span className="text-white font-bold">{currentHours}h</span> está dimensionada para a demanda.
             Não há déficit de atendimento identificado.
           </p>
@@ -89,165 +87,136 @@ export function FinancialImpact({
     <motion.div
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-5 sm:p-6 bg-slate-900 border-2 border-slate-800 rounded-2xl shadow-2xl overflow-hidden relative"
+      className="p-5 sm:p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden relative"
     >
-      <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-indigo-500/10 to-transparent pointer-events-none" />
+      <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      <h4 className="text-base sm:text-lg font-black text-white mb-5 flex items-center gap-3 uppercase tracking-tight">
+      <h4 className="text-sm font-black text-white mb-6 flex items-center gap-3 uppercase tracking-tight">
         <span className="p-2 bg-rose-500/20 text-rose-400 rounded-lg">
-          <TrendingDown size={20} />
+          <Coins size={16} />
         </span>
-        Impacto Direto no seu Caixa
+        Impacto Direto no seu Caixa (Margem Projetada)
       </h4>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-
-        {/* Coluna 1: Perda */}
-        <div className="bg-white/5 rounded-xl p-5 sm:p-6 border border-white/10 hover:border-rose-500/30 transition-colors flex flex-col justify-between">
+      {/* Grid containing the 3 clear visual pillars */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+        
+        {/* Pilar 1: O que some do bolso */}
+        <div className="bg-white/[0.03] rounded-xl p-5 border border-white/5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center gap-2 mb-4 text-rose-400">
-              <TrendingDown size={14} />
-              <span className="text-[10px] font-black uppercase tracking-widest leading-none">
-                Perda Projetada
+            <div className="flex items-center gap-2 mb-3 text-rose-400">
+              <HeartCrack size={14} />
+              <span className="text-[10px] font-black uppercase tracking-wider">
+                Lucro Líquido Perdido
               </span>
             </div>
-
-            <div className="flex items-baseline gap-3 sm:gap-4 mb-4 flex-wrap">
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tabular-nums">
-                {currencyFormatter.format(weeklyLoss)}
-              </div>
-              <div className="text-xs text-slate-500 font-medium italic">por semana</div>
+            
+            <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none mt-1">
+              Perda mensal de margem:
+            </span>
+            <div className="text-2xl sm:text-3xl font-black text-rose-400 tracking-tight mt-2 mb-3 tabular-nums">
+              -{currencyFormatter.format(monthlyProfitLoss)}
             </div>
 
-            <div className="flex flex-col gap-3 py-4 sm:py-5 border-y border-white/5">
-              <div className="flex items-center gap-4">
-                <div className="text-2xl sm:text-3xl font-black text-white tabular-nums">
-                  {safeLostClients}
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-indigo-500/30 pb-0.5 mb-0.5">
-                    Vendas Perdidas
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-medium">
-                    Equivalente por semana
-                  </span>
-                </div>
-              </div>
-              <div className="text-[10px] font-bold text-slate-500 italic">
-                * Ticket médio: {currencyFormatter.format(safeAvgTicket)}
-              </div>
-            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed font-medium">
+              Vendas que deixam de acontecer convertidas em margem de caixa direta que some do seu saldo líquido final.
+            </p>
           </div>
 
-          <div className="mt-5 space-y-2.5">
-            <div className="flex justify-between items-center text-xs gap-2">
-              <span className="text-slate-400 font-bold uppercase tracking-tighter">
-                Faturamento Perdido/mês
-              </span>
-              <span className="text-white font-black tabular-nums">
-                {currencyFormatter.format(monthlyLoss)}
-              </span>
+          <div className="mt-4 pt-3 border-t border-white/5 flex flex-col gap-1 text-[10px]">
+            <div className="flex justify-between font-bold text-slate-400 uppercase">
+              <span>Perda Faturamento:</span>
+              <span className="text-slate-200 tabular-nums">{currencyFormatter.format(monthlyLoss)}</span>
             </div>
-            <div className="flex justify-between items-center text-xs gap-2">
-              <span className="text-slate-400 font-bold uppercase tracking-tighter">
-                Margem de Contribuição/mês
-              </span>
-              <span className="text-rose-400 font-black tabular-nums">
-                {currencyFormatter.format(monthlyProfitLoss)}
-              </span>
+            <div className="flex justify-between font-bold text-slate-400 uppercase">
+              <span>Vendas Perdidas:</span>
+              <span className="text-slate-200 tabular-nums">{Math.round(safeLostClients * WEEKS_PER_MONTH)} / mês</span>
             </div>
           </div>
         </div>
 
-        {/* Coluna 2: Decisão */}
-        <div className="bg-white/5 rounded-xl p-5 sm:p-6 border border-white/10 hover:border-emerald-500/30 transition-colors flex flex-col">
-          <div className="flex items-center gap-2 mb-5 text-indigo-400">
-            <AlertCircle size={18} />
-            <span className="text-[10px] font-black uppercase tracking-widest leading-none">
-              Análise de Viabilidade
+        {/* Pilar 2: Custo da Solução */}
+        <div className="bg-white/[0.03] rounded-xl p-5 border border-white/5 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-3 text-indigo-400">
+              <Activity size={14} />
+              <span className="text-[10px] font-black uppercase tracking-wider">
+                Custo de Resolução
+              </span>
+            </div>
+
+            <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none mt-1">
+              Custo total do investimento:
             </span>
+            <div className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-2 mb-3 tabular-nums">
+              {currencyFormatter.format(totalDecisionCost)}
+            </div>
+
+            <p className="text-[11px] text-slate-300 leading-relaxed font-medium">
+              Despesas adicionais para cobrir o buraco de horas criadas pela redução de tempo com equipe ou tecnologia.
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-              <span className="block text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">
-                Margem em Risco
-              </span>
-              <span className="text-sm font-black text-rose-400 tabular-nums">
-                {currencyFormatter.format(monthlyProfitLoss)}
-              </span>
+          <div className="mt-4 pt-3 border-t border-white/5 flex flex-col gap-1 text-[10px]">
+            <div className="flex justify-between font-bold text-slate-400 uppercase">
+              <span>Contratação ({fteNeeded}x):</span>
+              <span className="text-slate-200 tabular-nums">{currencyFormatter.format(safeTotalHiring)}</span>
             </div>
-            <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-              <span className="block text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">
-                Contratar {fteNeeded}×
-              </span>
-              <span className="text-sm font-black text-white tabular-nums">
-                {currencyFormatter.format(safeTotalHiring)}
-              </span>
+            <div className="flex justify-between font-bold text-slate-400 uppercase">
+              <span>Mitigações / Tech:</span>
+              <span className="text-slate-200 tabular-nums">{currencyFormatter.format(mitigationMonthlyCost)}</span>
             </div>
-            {mitigationMonthlyCost > 0 && (
-              <>
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                  <span className="block text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">
-                    Mitigações Ativas
-                  </span>
-                  <span className="text-sm font-black text-amber-400 tabular-nums">
-                    {currencyFormatter.format(mitigationMonthlyCost)}
-                  </span>
-                </div>
-                <div className="bg-white/5 p-3 rounded-lg border border-white/5">
-                  <span className="block text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">
-                    Custo Total
-                  </span>
-                  <span className="text-sm font-black text-white tabular-nums">
-                    {currencyFormatter.format(totalDecisionCost)}
-                  </span>
-                </div>
-              </>
-            )}
           </div>
+        </div>
 
-          <div className={`flex-1 p-5 sm:p-6 rounded-2xl text-center border-2 shadow-inner flex flex-col items-center justify-center ${
-            shouldHire
-              ? 'bg-emerald-500/5 border-emerald-500/40 text-emerald-400'
-              : 'bg-rose-500/5 border-rose-500/40 text-rose-400'
-          }`}>
-            <div className="flex justify-center mb-3">
-              {shouldHire
-                ? <div className="bg-emerald-500 text-slate-900 rounded-full p-2.5 shadow-lg shadow-emerald-500/20"><CheckCircle2 size={28} /></div>
-                : <div className="bg-rose-500 text-white rounded-full p-2.5 shadow-lg shadow-rose-500/20"><XCircle size={28} /></div>
-              }
+        {/* Pilar 3: Diagnóstico de Viabilidade */}
+        <div className={`p-5 rounded-xl border flex flex-col justify-between ${
+          shouldHire
+            ? 'bg-emerald-500/[0.04] border-emerald-500/20 text-emerald-400'
+            : 'bg-rose-500/[0.04] border-rose-500/20 text-rose-400'
+        }`}>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              {shouldHire ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+              <span className="text-[10px] font-black uppercase tracking-wider">
+                Veredito Financeiro
+              </span>
             </div>
 
-            <div className="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-60">
-              Recomendação Final
-            </div>
-
-            <div className="text-lg sm:text-xl font-black leading-none mb-3 uppercase tracking-tighter">
+            <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none mt-1">
+              Opção Recomendada:
+            </span>
+            <div className={`text-xl sm:text-2xl font-black tracking-tight mt-2 mb-3 uppercase ${
+              shouldHire ? 'text-emerald-400 animate-pulse' : 'text-rose-400'
+            }`}>
               {shouldHire ? 'Viável Contratar' : 'Revisar Operação'}
             </div>
 
-            <p className="text-[11px] font-medium leading-relaxed max-w-[260px] mx-auto text-slate-300">
+            <p className="text-[11px] text-slate-300 leading-relaxed font-medium">
               {shouldHire
-                ? `A margem recuperada cobre o custo total (${currencyFormatter.format(totalDecisionCost)}) com folga superior a 20%.`
+                ? 'Lucrativo. A margem recuperada ao restabelecer o atendimento supera as novas despesas com folga segura de 20%.'
                 : coversBareMinimum
-                  ? `A margem cobre o custo bruto (${currencyFormatter.format(totalDecisionCost)}), mas sem folga de segurança suficiente.`
-                  : `O custo total (${currencyFormatter.format(totalDecisionCost)}) excede a margem recuperada. Avalie reduzir mitigações ou ajustar metas.`
+                  ? 'Marginal. A margem recuperada cobre o custo bruto, mas sem folga de segurança. Recomenda-se cautela ou automação adicional.'
+                  : 'Prejudicial. O faturamento recuperado não compensa os custos extras de pessoal. Foque em software ou reorganização produtiva.'
               }
             </p>
           </div>
+
+          <div className="mt-4 pt-3 border-t border-white/5 text-[10px] text-slate-400 font-bold uppercase tracking-wider text-right italic">
+            * Margem aplicada: {Math.round(grossMargin * 100)}%
+          </div>
         </div>
+
       </div>
 
-      <div className="mt-6 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      {/* Bottom informational details */}
+      <div className="mt-5 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[10px] text-slate-500 font-bold uppercase tracking-wider">
         <div className="flex items-center gap-2">
           <div className={`w-1.5 h-1.5 rounded-full ${shouldHire ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-          <p className="text-[11px] font-bold text-slate-400">
-            Margem de contribuição: <span className="text-white">{Math.round(grossMargin * 100)}%</span>
-          </p>
+          <span>Fórmula de análise automatizada parametrizada com o Efeito Baumol</span>
         </div>
-        <div className="bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-          Efeito Baumol
+        <div className="text-slate-400">
+          Cenário: {currentHours}h ➜ {targetHours}h
         </div>
       </div>
     </motion.div>

@@ -27,6 +27,10 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
       const mitigatedH = futureH * (1 + boost);
       const deficitH = Math.max(0, baselineH - mitigatedH);
       const deficitPercent = baselineH > 0 ? (deficitH / baselineH) * 100 : 0;
+
+      // Aumento necessário em vendas/produtividade por hora trabalhada
+      const rawIncrease = hours > 0 ? ((44 / hours) - 1) * 100 : 0;
+      const remainingIncrease = Math.max(0, (((44 / hours) / (1 + boost)) - 1) * 100);
       
       let label = "Equilíbrio";
       let color = "text-emerald-500";
@@ -53,12 +57,14 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
       return {
         hours,
         deficit: Math.round(deficitPercent),
+        rawIncrease: Math.round(rawIncrease),
+        remainingIncrease: Math.round(remainingIncrease),
         label,
         color,
         bgColor
       };
     });
-  }, [params, strategies]);
+  }, [params, strategies, lastValidHours]);
 
   // SVG Sparkline calculation
   const chartWidth = 200;
@@ -118,8 +124,9 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
           <thead>
             <tr className="border-b border-slate-100">
               <th className="pb-3 px-5 sm:px-0 text-[10px] font-black text-slate-400 uppercase tracking-widest">Jornada</th>
-              <th className="pb-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-              <th className="pb-3 px-5 sm:px-0 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Déficit</th>
+              <th className="pb-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center animate-pulse">Status Operacional</th>
+              <th className="pb-3 px-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Déficit Tempo</th>
+              <th className="pb-3 px-5 sm:px-0 text-[10px] font-black text-indigo-500 uppercase tracking-widest text-right">Meta de Vendas p/ Hora</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
@@ -128,15 +135,15 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
                 key={d.hours} 
                 className={cn(
                   "group transition-colors",
-                  d.hours === lastValidHours ? "bg-indigo-50/50" : "hover:bg-slate-50/50"
+                  d.hours === lastValidHours ? "bg-indigo-50/50 font-medium" : "hover:bg-slate-50/50"
                 )}
               >
                 <td className="py-3 px-5 sm:px-0">
                   <div className="flex items-center gap-2">
-                    <div className={cn("w-1.5 h-1.5 rounded-full", d.bgColor)} />
+                    <div className={cn("w-1.5 h-1.5 rounded-full", d.bgColor2 || d.bgColor)} />
                     <span className={cn(
                       "text-xs tabular-nums font-black",
-                      d.hours === lastValidHours ? "text-indigo-600" : "text-slate-600"
+                      d.hours === lastValidHours ? "text-indigo-600 font-black scale-105" : "text-slate-600"
                     )}>
                       {d.hours}h
                     </span>
@@ -150,13 +157,26 @@ export function ScenarioTimeline({ params, strategies, lastValidHours }: Scenari
                     {d.label}
                   </span>
                 </td>
-                <td className="py-3 px-5 sm:px-0 text-right">
+                <td className="py-3 px-4 text-right">
                   <span className={cn(
                     "text-xs font-black tabular-nums",
-                    d.deficit > 0 ? "text-rose-500" : "text-emerald-500"
+                    d.deficit > 0 ? "text-rose-500 animate-pulse" : "text-emerald-500"
                   )}>
                     {d.deficit === 0 ? "0%" : `-${d.deficit}%`}
                   </span>
+                </td>
+                <td className="py-3 px-5 sm:px-0 text-right">
+                  <div className="flex flex-col items-end">
+                    <span className={cn(
+                      "text-xs font-black tabular-nums",
+                      d.remainingIncrease > 0 ? "text-indigo-600" : "text-emerald-600"
+                    )}>
+                      {d.remainingIncrease === 0 ? "✓ 0% (Compensado!)" : `+${d.remainingIncrease}%`}
+                    </span>
+                    <span className="text-[8px] text-slate-400 font-bold uppercase tracking-tight">
+                      Sem tech: +{d.rawIncrease}%
+                    </span>
+                  </div>
                 </td>
               </tr>
             ))}

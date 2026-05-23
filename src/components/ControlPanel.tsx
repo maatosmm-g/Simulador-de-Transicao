@@ -174,13 +174,18 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
 
             {/* Margem */}
             <div className="space-y-3 pt-4 border-t border-dashed border-slate-200">
-              <div className="flex items-center justify-between">
-                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
-                  Margem de Venda
-                </label>
-                <span className="text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100 italic">
-                  {Math.round(params.grossMargin * 100)}% real
-                </span>
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
+                    Margem de Venda
+                  </label>
+                  <span className="text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100 italic">
+                    {Math.round(params.grossMargin * 100)}% real
+                  </span>
+                </div>
+                <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-wider italic">
+                  Margem de Venda média ≈20% a 40%
+                </p>
               </div>
               <input
                 type="range" min="5" max="95" step="1"

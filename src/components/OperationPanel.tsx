@@ -60,16 +60,21 @@ export function OperationPanel({ employeeCount, targetHours }: OperationPanelPro
             <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Porta aberta / semana</div>
           </div>
 
-          <div className="pt-3 border-t border-slate-200/60 flex justify-between items-end">
-            <div>
-              <div className="text-xl font-black text-slate-600 tabular-nums">
-                {currentCoverage.toFixed(1)}
+          <div className="pt-3 border-t border-slate-200/60 flex flex-col gap-2">
+            <div className="flex justify-between items-end">
+              <div>
+                <div className="text-xl font-black text-slate-600 tabular-nums">
+                  {currentCoverage.toFixed(1)}
+                </div>
+                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic leading-none mt-1">Colab./hora</div>
               </div>
-              <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter italic leading-none mt-1">Colab./hora</div>
+              <div className="text-[8px] font-black text-slate-300 uppercase">
+                {openDays}D × {hoursPerDay}H
+              </div>
             </div>
-            <div className="text-[8px] font-black text-slate-300 uppercase">
-              {openDays}D × {hoursPerDay}H
-            </div>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight leading-normal mt-1 border-t border-slate-100 pt-1.5 italic">
+              ⚠ Se a jornada for reduzida, este número tende a ser menor.
+            </p>
           </div>
         </div>
 
