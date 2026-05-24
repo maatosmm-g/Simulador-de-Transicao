@@ -19,6 +19,7 @@ import {
 import { MetricCard } from '@/src/components/MetricCard';
 import { OperationPanel } from '@/src/components/OperationPanel';
 import { BaumolInsight } from '@/src/components/BaumolInsight';
+import { VisualManagementCard } from '@/src/components/VisualManagementCard';
 import { ControlPanel } from '@/src/components/ControlPanel';
 import { MitigationChecklist } from '@/src/components/MitigationChecklist';
 import { FinancialImpact } from '@/src/components/FinancialImpact';
@@ -342,6 +343,16 @@ export default function App() {
             />
 
             <BaumolInsight />
+
+            <VisualManagementCard 
+              targetHours={params.targetHours}
+              isInterlocked={isInterlocked}
+              lastValidHours={lastValidHours}
+              totalBoost={results.totalBoost}
+              employeeCount={params.employeeCount}
+              clientLoss={results.clientLoss}
+              capacityRetention={results.capacityRetention}
+            />
           </div>
 
         </div>
