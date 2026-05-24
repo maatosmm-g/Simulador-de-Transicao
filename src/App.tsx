@@ -6,7 +6,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/src/lib/utils';
-import { Users, TrendingDown } from 'lucide-react';
+import { Users, TrendingDown, DollarSign } from 'lucide-react';
 
 import {
   INITIAL_PARAMETERS,
@@ -316,6 +316,18 @@ export default function App() {
               subtitle={`Para manter o nível de serviço. Arredondado: ${results.fteToHireRounded} contratações.`}
               trend="Cálculo baseado em FTE (Full Time Equivalent)"
               icon={Users}
+              isLocked={isInterlocked}
+            />
+
+            <MetricCard
+              title="Custo de Contratação p/ Funcionários Equivalentes"
+              value={`R$ ${Math.round(results.totalHiringCost).toLocaleString('pt-BR')}`}
+              subtitle={results.fteToHireRounded > 0 
+                ? `Custo mensal adicional estimado para ${results.fteToHireRounded} novas contratações, com salário de R$ ${params.avgSalary.toLocaleString('pt-BR')} e encargos estaduais/federais (+${params.taxRegime === 'simples' ? '35%' : '60%'}).`
+                : `Nenhuma contratação necessária para compensar o déficit atual.`
+              }
+              trend={`Custo unitário com encargos: R$ ${Math.round(results.hiringUnitCost).toLocaleString('pt-BR')}/mês`}
+              icon={DollarSign}
               isLocked={isInterlocked}
             />
 
