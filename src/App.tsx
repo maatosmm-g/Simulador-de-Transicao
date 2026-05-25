@@ -307,6 +307,7 @@ export default function App() {
               activeMitigationCost={results.activeMitigationCost}
               isInterlocked={isInterlocked}
             />
+            <BaumolInsight />
           </div>
 
           {/* MÉTRICAS DE DECISÃO */}
@@ -341,8 +342,6 @@ export default function App() {
               icon={TrendingDown}
               isLocked={isInterlocked}
             />
-
-            <BaumolInsight />
 
             <VisualManagementCard 
               targetHours={params.targetHours}
