@@ -20,32 +20,69 @@ export interface MitigationStrategy {
   active: boolean;
 }
 
-// 🎯 Constantes de calibração do modelo (Ajustadas para alta fidelidade com o Efeito Baumol)
+// 🎯 Constantes de calibração do modelo (Altamente calibradas com a teoria do Efeito Baumol e o Mercado Brasileiro 2026)
 export const MODEL_CALIBRATION = {
-  // Quanto a equipe absorve do déficit via intensidade sem perder vendas (5% de resiliência natural)
+  /**
+   * INTENSITY_ABSORPTION (Resiliência Operacional Inicial)
+   * Representa a capacidade natural de absorção de déficit pela equipe (ex.: aumento temporário de foco
+   * ou compressão de tempos mortos). Definido em 5%. Déficits menores que este limite não geram perdas de vendas,
+   * amortecendo pequenas oscilações de horas produtivas.
+   */
   INTENSITY_ABSORPTION: 0.05,
   
-  // Proporção do tempo em que a fila gera desistência direta (horários de pico concentram as perdas)
-  PEAK_HOURS_RATIO: 0.35, // Ajustado para refletir a concentração real de fluxo comercial
+  /**
+   * PEAK_HOURS_RATIO (Concentração de Fluxo em Horários de Pico)
+   * Em negócios de serviços e comércio, a perda de horas operacionais não se distribui de maneira uniforme.
+   * O déficit produtivo impacta majoritariamente as horas de pico de atendimento (estimado em 35% do tempo total),
+   * onde a capacidade residual é zero e filas de espera geram gargalos imediatos.
+   */
+  PEAK_HOURS_RATIO: 0.35,
   
-  // Taxa base de desistência em fila + sensibilidade matemática ao déficit por colaborador
+  /**
+   * SENSITIVIDADE E LIMIARES DE DESISTÊNCIA (Abandonment Dynamics)
+   * Modela matematicamente o comportamento de saída/desistência de clientes em filas.
+   * - ABANDONMENT_BASE (15%): Taxa natural mínima de perda em cenários de fila saturada.
+   * - ABANDONMENT_SENSITIVITY (15%): Fator multiplicador que acelera as desistências à medida que o déficit de horas
+   *   por colaborador se acumula (representando filas exponencialmente maiores).
+   * - ABANDONMENT_CEIL (85%): O teto limite de desistências para evitar infinitudes operacionais, capturando o total
+   *   colapso de atendimento em reduções radicais desprotegidas de jornada (ex.: 36h sem mitigação tecnológica).
+   */
   ABANDONMENT_BASE: 0.15,
-  ABANDONMENT_SENSITIVITY: 0.15, // Elevado de 0.10 para acelerar o prejuízo conforme a jornada cai
-  ABANDONMENT_CEIL: 0.85,        // Elevado de 0.50 para 0.85 para capturar cenários de caos em 36h
+  ABANDONMENT_SENSITIVITY: 0.15,
+  ABANDONMENT_CEIL: 0.85,
   
-  // Teto máximo de perda em relação ao movimento total (Segurança expandida para não achatar a curva)
-  MAX_LOSS_RATIO: 0.40, // Elevado de 0.12 para 0.40 para dar vazão ao crescimento não-linear do prejuízo
+  /**
+   * MAX_LOSS_RATIO (Teto Produtivo de Perda Base)
+   * Estabelece um limite macroeconômico realista de perda comercial de 40% sobre o volume do cenário base,
+   * impedindo que o modelo projete perdas matemáticas abstratas superiores à própria escala física da operação.
+   */
+  MAX_LOSS_RATIO: 0.40,
   
-  // Margem mínima de retorno para considerar contratação "viável"
+  /**
+   * HIRE_SAFETY_MARGIN (Margem de Segurança de Contratação)
+   * Coeficiente de segurança financeira para avaliar se a receita recuperada por um colaborador adicional
+   * justifica integralmente seu custo real carregado de encargos (exige 20% de margem positiva mínima).
+   */
   HIRE_SAFETY_MARGIN: 1.20,
   
-  // Multiplicadores de encargos trabalhistas reais (Mercado Brasileiro - Base 2026)
+  /**
+   * TAX_MULTIPLIER (Multiplicadores de Encargos Trabalhistas Totais - Mercado Brasileiro 2026)
+   * Traduz o salário nominal bruto de carteira (CLT) para o custo patronal real carregado do empregador:
+   * - 'simples' (1.35x): Custo de empresas no Simples Nacional. Inclui Férias (1/3 constitucional), 13º salário,
+   *   FGTS (8%), provisão de multa rescisória e benefícios básicos.
+   * - 'real' (1.60x): Custo sob o Lucro Presumido ou Lucro Real. Adiciona INSS Patronal (20%), RAT/FAP (ajustado),
+   *   Salário Educação e contribuições de Terceiros (Sistema S) sobre a folha bruta.
+   */
   TAX_MULTIPLIER: {
     simples: 1.35,
-    real: 1.60, // Ajustado para incluir encargos reais consolidados do Lucro Real
+    real: 1.60,
   },
   
-  // Média exata de semanas por mês (52 semanas / 12 meses)
+  /**
+   * WEEKS_PER_MONTH (Fator exato de conversão cronológica mensal)
+   * Média exata de semanas por mês calendário (52 semanas divididas por 12 meses = 4.3333).
+   * Garante a precisão matemática na conversão de taxas operacionais semanais para demonstrações financeiras mensais.
+   */
   WEEKS_PER_MONTH: 4.3333,
 } as const;
 

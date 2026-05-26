@@ -1,3 +1,4 @@
+import { RotateCcw } from 'lucide-react';
 import { SimulationParameters, MODEL_CALIBRATION } from '@/src/constants';
 import { cn } from '@/src/lib/utils';
 
@@ -8,9 +9,10 @@ interface ControlPanelProps {
   isInterlocked: boolean;
   currentHoursSelection: number;
   onTargetHoursChange: (hours: number) => void;
+  onReset: () => void;
 }
 
-export function ControlPanel({ params, setParams, lastValidHours, isInterlocked, currentHoursSelection, onTargetHoursChange }: ControlPanelProps) {
+export function ControlPanel({ params, setParams, lastValidHours, isInterlocked, currentHoursSelection, onTargetHoursChange, onReset }: ControlPanelProps) {
   const { TAX_MULTIPLIER, WEEKS_PER_MONTH } = MODEL_CALIBRATION;
 
   const formatBR = (val: number) =>
@@ -35,10 +37,18 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
 
   return (
     <div className="flex flex-col gap-5 bg-white p-5 sm:p-6 rounded-2xl border border-slate-200">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">
           Perfil da Unidade
         </h2>
+        <button
+          onClick={onReset}
+          className="flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-black text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 hover:border-indigo-300 rounded-lg uppercase tracking-wider transition-all cursor-pointer shadow-sm active:scale-95 touch-manipulation"
+          title="Restaurar para parâmetros padrões"
+        >
+          <RotateCcw size={10} className="stroke-[3px]" />
+          Resetar
+        </button>
       </div>
 
       <div className="space-y-5">
@@ -56,10 +66,22 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
                   type="number"
                   min="1"
                   max="200"
-                  value={params.employeeCount}
+                  value={params.employeeCount || ''}
                   onChange={(e) => {
-                    const val = parseInt(e.target.value);
-                    if (!isNaN(val)) setParams({ ...params, employeeCount: Math.min(200, Math.max(1, val)) });
+                    const text = e.target.value;
+                    if (text === '') {
+                      setParams({ ...params, employeeCount: 0 });
+                      return;
+                    }
+                    const val = parseInt(text);
+                    if (!isNaN(val)) setParams({ ...params, employeeCount: Math.min(200, Math.max(0, val)) });
+                  }}
+                  onBlur={() => {
+                    if (params.employeeCount < 1) {
+                      setParams({ ...params, employeeCount: 1 });
+                    } else if (params.employeeCount > 200) {
+                      setParams({ ...params, employeeCount: 200 });
+                    }
                   }}
                   className="w-12 bg-transparent border-b border-slate-200 text-xs font-black text-indigo-600 text-center focus:outline-none focus:border-indigo-500 py-1 tabular-nums"
                 />
@@ -128,6 +150,11 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
                 inputMode="numeric"
                 value={formatBR(params.avgTicket)}
                 onChange={(e) => handleCurrencyChange(e.target.value, 'avgTicket')}
+                onBlur={() => {
+                  if (params.avgTicket < 5) {
+                    setParams({ ...params, avgTicket: 320 });
+                  }
+                }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-black text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-right min-h-[48px] tabular-nums transition-all"
               />
             </div>
@@ -176,6 +203,11 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
                   inputMode="numeric"
                   value={formatBR(params.avgSalary)}
                   onChange={(e) => handleCurrencyChange(e.target.value, 'avgSalary')}
+                  onBlur={() => {
+                    if (params.avgSalary < 500) {
+                      setParams({ ...params, avgSalary: 1621 });
+                    }
+                  }}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-black text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-right min-h-[48px] tabular-nums transition-all"
                 />
               </div>

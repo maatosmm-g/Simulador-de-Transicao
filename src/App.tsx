@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@/src/lib/utils';
 import { Users, TrendingDown, DollarSign } from 'lucide-react';
@@ -28,15 +28,85 @@ import { InterlockingPanel } from '@/src/components/InterlockingPanel';
 import { SalesTargetCard } from '@/src/components/SalesTargetCard';
 
 export default function App() {
-  const [params, setParams] = useState<SimulationParameters>(() => ({
-    ...INITIAL_PARAMETERS,
-    targetHours: 44, // Começa na base de 44h para orientar a sequência passo a passo
-  }));
-  const [strategies, setStrategies] = useState<MitigationStrategy[]>(MITIGATION_STRATEGIES);
+  const [params, setParams] = useState<SimulationParameters>(() => {
+    try {
+      const saved = localStorage.getItem('sim_44h_params');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed.employeeCount === 'number') {
+          return {
+            ...INITIAL_PARAMETERS,
+            ...parsed,
+          };
+        }
+      }
+    } catch (e) {
+      console.error('Falha ao ler parâmetros do localStorage', e);
+    }
+    return {
+      ...INITIAL_PARAMETERS,
+      targetHours: 44, // Começa na base de 44h para orientar a sequência passo a passo
+    };
+  });
 
-  const [lastValidHours, setLastValidHours] = useState<number>(44);
-  const [currentHoursSelection, setCurrentHoursSelection] = useState<number>(44);
+  const [strategies, setStrategies] = useState<MitigationStrategy[]>(() => {
+    try {
+      const saved = localStorage.getItem('sim_44h_strategies');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === MITIGATION_STRATEGIES.length) {
+          // Mantém as definições originais (metadados) e sincroniza apenas se estavam ativas
+          return MITIGATION_STRATEGIES.map(st => {
+            const found = parsed.find((s: any) => s.id === st.id);
+            return {
+              ...st,
+              active: found ? !!found.active : st.active,
+            };
+          });
+        }
+      }
+    } catch (e) {
+      console.error('Falha ao ler estratégias do localStorage', e);
+    }
+    return MITIGATION_STRATEGIES;
+  });
+
+  const [lastValidHours, setLastValidHours] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('sim_44h_last_valid_hours');
+      if (saved) {
+        const parsed = parseInt(saved);
+        if ([44, 42, 40, 39, 38, 37, 36].includes(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return params.targetHours ?? 44;
+  });
+
+  const [currentHoursSelection, setCurrentHoursSelection] = useState<number>(params.targetHours ?? 44);
   const [isInterlocked, setIsInterlocked] = useState<boolean>(false);
+
+  // Efeitos para persistência
+  useEffect(() => {
+    try {
+      localStorage.setItem('sim_44h_params', JSON.stringify(params));
+    } catch (e) {
+      console.error('Erro ao gravar params no localStorage', e);
+    }
+  }, [params]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('sim_44h_strategies', JSON.stringify(strategies));
+    } catch (e) {
+      console.error('Erro ao gravar estratégias no localStorage', e);
+    }
+  }, [strategies]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('sim_44h_last_valid_hours', lastValidHours.toString());
+    } catch (e) {}
+  }, [lastValidHours]);
 
   const SEQ = [44, 42, 40, 39, 38, 37, 36];
 
@@ -63,6 +133,22 @@ export default function App() {
 
   const toggleStrategy = (id: MitigationStrategy['id']) => {
     setStrategies(prev => prev.map(s => s.id === id ? { ...s, active: !s.active } : s));
+  };
+
+  const handleReset = () => {
+    try {
+      localStorage.removeItem('sim_44h_params');
+      localStorage.removeItem('sim_44h_strategies');
+      localStorage.removeItem('sim_44h_last_valid_hours');
+    } catch (e) {}
+    setParams({
+      ...INITIAL_PARAMETERS,
+      targetHours: 44,
+    });
+    setStrategies(MITIGATION_STRATEGIES.map(s => ({ ...s, active: false })));
+    setLastValidHours(44);
+    setCurrentHoursSelection(44);
+    setIsInterlocked(false);
   };
 
   const results = useMemo(() => {
@@ -296,6 +382,7 @@ export default function App() {
               isInterlocked={isInterlocked}
               currentHoursSelection={currentHoursSelection}
               onTargetHoursChange={handleTargetHoursChange}
+              onReset={handleReset}
             />
             <MitigationChecklist 
               strategies={strategies} 
