@@ -38,7 +38,7 @@ export default function App() {
   const [currentHoursSelection, setCurrentHoursSelection] = useState<number>(44);
   const [isInterlocked, setIsInterlocked] = useState<boolean>(false);
 
-  const SEQ = [44, 40, 39, 38, 37, 36];
+  const SEQ = [44, 42, 40, 39, 38, 37, 36];
 
   const handleTargetHoursChange = (newHours: number) => {
     const fromIdx = SEQ.indexOf(lastValidHours);
@@ -254,19 +254,14 @@ export default function App() {
                   trend={`Capacidade Retida: ${results.capacityRetention.toFixed(1)}%`}
                 />
 
-                <FinancialImpact
-                  lostClientsWeekly={results.clientLoss}
-                  lostClientsWeeklyRaw={results.clientLossRaw}
-                  avgTicket={params.avgTicket}
-                  monthlyHiringCost={results.hiringUnitCost}
-                  totalHiringCost={results.totalHiringCost}
-                  mitigationMonthlyCost={results.activeMitigationCost}
-                  fteNeeded={results.fteToHireRounded}
-                  currentHours={params.currentHours}
+                <VisualManagementCard 
                   targetHours={params.targetHours}
-                  grossMargin={params.grossMargin}
+                  isInterlocked={isInterlocked}
+                  lastValidHours={lastValidHours}
                   totalBoost={results.totalBoost}
-                  totalClientsLost={results.clientLoss} // Injetado para manter consistência direta com a base mensalizada
+                  employeeCount={params.employeeCount}
+                  clientLoss={results.clientLoss}
+                  capacityRetention={results.capacityRetention}
                 />
 
                 <OperationPanel
@@ -281,6 +276,8 @@ export default function App() {
                 />
               </>
             )}
+
+            <BaumolInsight />
 
             <ScenarioTimeline 
               params={params}
@@ -307,7 +304,6 @@ export default function App() {
               activeMitigationCost={results.activeMitigationCost}
               isInterlocked={isInterlocked}
             />
-            <BaumolInsight />
           </div>
 
           {/* MÉTRICAS DE DECISÃO */}
@@ -343,14 +339,20 @@ export default function App() {
               isLocked={isInterlocked}
             />
 
-            <VisualManagementCard 
+            <FinancialImpact
+              lostClientsWeekly={results.clientLoss}
+              lostClientsWeeklyRaw={results.clientLossRaw}
+              avgTicket={params.avgTicket}
+              monthlyHiringCost={results.hiringUnitCost}
+              totalHiringCost={results.totalHiringCost}
+              mitigationMonthlyCost={results.activeMitigationCost}
+              fteNeeded={results.fteToHireRounded}
+              currentHours={params.currentHours}
               targetHours={params.targetHours}
-              isInterlocked={isInterlocked}
-              lastValidHours={lastValidHours}
+              grossMargin={params.grossMargin}
               totalBoost={results.totalBoost}
-              employeeCount={params.employeeCount}
-              clientLoss={results.clientLoss}
-              capacityRetention={results.capacityRetention}
+              totalClientsLost={results.clientLoss}
+              isCompact={true}
             />
           </div>
 

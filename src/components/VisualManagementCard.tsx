@@ -41,7 +41,7 @@ export function VisualManagementCard({
       case 44:
         return {
           stepNum: 1,
-          title: "Etapa 1 de 6 · Referência Inicial",
+          title: "Etapa 1 de 7 · Referência Inicial",
           name: "Cenário Base de Entrada",
           statusText: "Equilíbrio",
           desc: "A operação está no regime legal padrão. Custos trabalhistas, produtividade média e capacidade de atendimento estão alinhados historicamente.",
@@ -50,50 +50,62 @@ export function VisualManagementCard({
           iconColor: "text-slate-500",
           accentColor: "border-slate-200 bg-slate-50/50"
         };
-      case 40:
+      case 42:
         return {
           stepNum: 2,
-          title: "Etapa 2 de 6 · Semanas Iniciais",
-          name: "Choque de Capacidade Inicial",
-          statusText: totalBoost >= 8 ? "Controlado" : "Atenção",
-          desc: "Primeiro corte estrutural de -9,1% nas horas de atendimento. A folga operacional desaparece e filas dão os primeiros sinais nos picos.",
-          action: "Ative a Otimização de Escalas flexíveis de imediato para blindar as janelas críticas e redirecionar energia ao balcão.",
-          badgeBg: totalBoost >= 8 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200",
-          iconColor: totalBoost >= 8 ? "text-emerald-500" : "text-amber-500",
-          accentColor: totalBoost >= 8 ? "border-emerald-100 bg-emerald-50/20" : "border-amber-100 bg-amber-50/20"
+          title: "Etapa 2 de 7 · PEC - Transição de 60 Dias",
+          name: "Corte para 42h e Escala 5x2",
+          statusText: totalBoost >= 5 ? "Estável" : "Redução",
+          desc: "Primeiro marco acordado da nova legislação. A jornada semanal máxima cai para 42 horas corporativas e o repouso semanal obrigatório é ampliado para 2 dias (escala 5x2).",
+          action: "Crucial planejar o revezamento operacional de forma imediata para cobrir os fins de semana vulneráveis. Introduza multitarefa na equipe de frente.",
+          badgeBg: totalBoost >= 5 ? "bg-sky-50 text-sky-700 border-sky-200" : "bg-amber-50 text-amber-700 border-amber-200",
+          iconColor: totalBoost >= 5 ? "text-sky-500" : "text-amber-500",
+          accentColor: totalBoost >= 5 ? "border-sky-100 bg-sky-50/20" : "border-amber-100 bg-amber-50/20"
+        };
+      case 40:
+        return {
+          stepNum: 3,
+          title: "Etapa 3 de 7 · PEC - Alvo Consolidado",
+          name: "Redução a 12 Meses (40h)",
+          statusText: totalBoost >= 10 ? "Consolidado" : "Atenção",
+          desc: "A jornada semanal é definitivamente reduzida para 40 horas mantendo o salário. Sem tecnologia de apoio, o déficit de tempo de atendimento estressa as filas e as vendas.",
+          action: "Implemente ferramentas de Automação Integral no atendimento básico para blindar as metas de receita e aliviar o balcão.",
+          badgeBg: totalBoost >= 10 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-orange-50 text-orange-700 border-orange-200",
+          iconColor: totalBoost >= 10 ? "text-emerald-500" : "text-orange-500",
+          accentColor: totalBoost >= 10 ? "border-emerald-100 bg-emerald-50/20" : "border-orange-100 bg-orange-50/20"
         };
       case 39:
         return {
-          stepNum: 3,
-          title: "Etapa 3 de 6 · Flexibilização",
+          stepNum: 4,
+          title: "Etapa 4 de 7 · Ajuste de Alta Performance",
           name: "Zona de Tolerância Espremida",
-          statusText: totalBoost >= 12 ? "Adaptado" : "Alerta",
-          desc: "Redução acumulada de -11,4% de tempo de trabalho. A resiliência de cansaço natural da equipe se esgota e o tempo de atendimento estica.",
-          action: "Com a recepção tensa, combine IA básica e Treinamento Multitarefa. Desafogar as rotinas administrativas mantém as vendas vivas.",
-          badgeBg: totalBoost >= 12 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-orange-50 text-orange-700 border-orange-200",
-          iconColor: totalBoost >= 12 ? "text-emerald-500" : "text-orange-500",
-          accentColor: totalBoost >= 12 ? "border-emerald-100 bg-emerald-50/20" : "border-orange-100 bg-orange-50/20"
+          statusText: totalBoost >= 14 ? "Adaptado" : "Alerta",
+          desc: "Buscando eficiências sobressalentes abaixo da PEC (39h semanais). A resiliência geral da operação requer refinamentos rápidos para evitar novas contratações.",
+          action: "Desafogue obrigações burocráticas automatizando a recepção digital de clientes e use escalas otimizadas de alta precisão.",
+          badgeBg: totalBoost >= 14 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-600 border-amber-200",
+          iconColor: totalBoost >= 14 ? "text-emerald-500" : "text-amber-500",
+          accentColor: totalBoost >= 14 ? "border-emerald-100 bg-emerald-50/20" : "border-amber-100 bg-amber-50/20"
         };
       case 38:
         return {
-          stepNum: 4,
-          title: "Etapa 4 de 6 · Ajuste de Escala",
-          name: "Gargalo de Atendimento Critico",
+          stepNum: 5,
+          title: "Etapa 5 de 7 · Ajuste de Escala Avançado",
+          name: "Gargalo de Atendimento Crítico",
           statusText: totalBoost >= 18 ? "Mitigado" : "Risco Elevado",
-          desc: "Déficit semanal atinge -13,6%. Os horários de pico ficam desprotegidos. O Mal de Baumol ataca, elevando fortemente o custo por minuto ativo.",
-          action: "Suba o nível tecnológico: use Automação Integral na triagem para filtrar clientes perdidos antes de baterem na fila de espera.",
+          desc: "Déficit semanal acumulado sobressalta a carga tradicional de trabalho. O Mal de Baumol se sobressai fortemente elevando o custo por minuto humano.",
+          action: "Aumente o nível de flexibilização de escala e IA de retaguarda. Priorize converter cliques em visitas físicas pré-qualificadas.",
           badgeBg: totalBoost >= 18 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200",
           iconColor: totalBoost >= 18 ? "text-emerald-500" : "text-rose-500",
           accentColor: totalBoost >= 18 ? "border-emerald-100 bg-emerald-50/20" : "border-rose-100 bg-rose-50/20"
         };
       case 37:
         return {
-          stepNum: 5,
-          title: "Etapa 5 de 6 · Consolidação",
-          name: "Ruptura de Modelo Tradicional",
+          stepNum: 6,
+          title: "Etapa 6 de 7 · Piloto de Alta Lucratividade",
+          name: "Ruptura de Modelo Comercial",
           statusText: totalBoost >= 22 ? "Operável" : "Risco de Caixa",
-          desc: "Jornada encolhe -15,9%. Sem fluxo enxuto de atendimento presencial, a conversão comercial declina e a perda em faturamento aumenta.",
-          action: "Otimize escalas sob o modelo 5x2 ou 6x1 adaptado e promova Revisão de Processos. Evite novas admissões sem resolver a produtividade básica.",
+          desc: "A jornada reduzida alcança limites agressivos de teste. Perda latente de conversão caso as escalas ou tecnologia básica percam o fôlego.",
+          action: "Ajuste escala sob o modelo 5x2 otimizado com rotatividade assistida. Evite contratar sem as devidas automações de triagem ativas.",
           badgeBg: totalBoost >= 22 ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200",
           iconColor: totalBoost >= 22 ? "text-emerald-500" : "text-red-500",
           accentColor: totalBoost >= 22 ? "border-emerald-100 bg-emerald-50/20" : "border-red-100 bg-red-50/20"
@@ -101,12 +113,12 @@ export function VisualManagementCard({
       case 36:
       default:
         return {
-          stepNum: 6,
-          title: "Etapa 6 de 6 · Meta Consolidada",
-          name: "Paradigma de Alta Eficiência",
+          stepNum: 7,
+          title: "Etapa 7 de 7 · Meta Máxima Otimizada",
+          name: "Paradigma de Produção Enxuta (36h)",
           statusText: totalBoost >= 26 ? "Excelente" : "Furo Crítico de Caixa",
-          desc: "Redução total extrema de -18,2% da jornada histórica. Sem apoio sistêmico de todas as mitigações, a operação perde fôlego financeiro.",
-          action: "Chegamos ao alvo. É compulsório manter Automação, Treinamento e Escalas ativas. Audite processos para estabilizar a transição.",
+          desc: "Redução total extrema de -18,2% da jornada histórica tradicional. Sem ampla inovação e mitigação corporativa completa, a escala é financeiramente insustentável.",
+          action: "Manter as 5 alavancas tecnológicas de mitigação operando com excelência. Audite ativamente para garantir a produtividade e reter faturamento.",
           badgeBg: totalBoost >= 26 ? "bg-indigo-50 text-indigo-700 border-indigo-200 animate-bounce" : "bg-purple-50 text-purple-700 border-purple-200",
           iconColor: totalBoost >= 26 ? "text-indigo-500" : "text-purple-500",
           accentColor: totalBoost >= 26 ? "border-indigo-100 bg-indigo-50/20" : "border-purple-100 bg-purple-50/20"
@@ -249,7 +261,7 @@ export function VisualManagementCard({
           <span className="flex items-center gap-1">
             <Activity size={10} /> Gestão Ativa
           </span>
-          <span>Etapa {meta.stepNum} de 6</span>
+          <span>Etapa {meta.stepNum} de 7</span>
         </div>
       </div>
     </motion.div>

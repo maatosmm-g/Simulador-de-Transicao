@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { CheckCircle2, XCircle, Coins, HeartCrack, Activity } from 'lucide-react';
+import { cn } from '@/src/lib/utils';
 
 interface FinancialImpactProps {
   lostClientsWeekly: number;       // Agora herda o valor já mensalizado pelo App.tsx
@@ -14,6 +15,7 @@ interface FinancialImpactProps {
   grossMargin?: number;
   totalBoost?: number;             
   totalClientsLost?: number;
+  isCompact?: boolean;
 }
 
 export function FinancialImpact({
@@ -24,6 +26,7 @@ export function FinancialImpact({
   currentHours,
   targetHours,
   grossMargin = 0.40,
+  isCompact = false,
 }: FinancialImpactProps) {
 
   // Como o App.tsx já envia os dados consolidados no mês, garantimos segurança contra valores nulos
@@ -83,11 +86,17 @@ export function FinancialImpact({
       id="direct-cash-impact-card"
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-5 sm:p-6 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden relative"
+      className={cn(
+        "bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden relative",
+        isCompact ? "p-4 sm:p-5" : "p-5 sm:p-6"
+      )}
     >
       <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      <h4 className="text-xs font-black text-white mb-6 flex items-center gap-3 uppercase tracking-[0.14em]">
+      <h4 className={cn(
+        "text-xs font-black text-white flex items-center gap-3 uppercase tracking-[0.14em]",
+        isCompact ? "mb-4" : "mb-6"
+      )}>
         <span className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg">
           <Coins size={14} />
         </span>
@@ -95,7 +104,10 @@ export function FinancialImpact({
       </h4>
 
       {/* Grid contendo os 3 pilares visuais */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+      <div className={cn(
+        "grid gap-4 sm:gap-5",
+        isCompact ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"
+      )}>
         
         {/* Pilar 1: Perda Máxima sem Ações */}
         <div className="bg-white/[0.02] rounded-xl p-5 border border-white/5 flex flex-col justify-between">

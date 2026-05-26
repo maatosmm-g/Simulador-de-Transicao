@@ -9,7 +9,7 @@ interface InterlockingPanelProps {
 }
 
 export function InterlockingPanel({ lastValidHours, currentHoursSelection, onResume }: InterlockingPanelProps) {
-  const SEQ = [44, 40, 39, 38, 37, 36];
+  const SEQ = [44, 42, 40, 39, 38, 37, 36];
   const lastValidIndex = SEQ.indexOf(lastValidHours);
   
   // Calculate allowed next steps
@@ -81,13 +81,14 @@ export function InterlockingPanel({ lastValidHours, currentHoursSelection, onRes
 
                 {/* Node descriptor details */}
                 <div className="flex-1 sm:text-center text-xs">
-                  <div className="font-extrabold text-[10px] uppercase tracking-tighter">
-                    {h === 44 && "Hoje (44h)"}
-                    {h === 40 && "Passo 2"}
-                    {h === 39 && "Passo 3"}
-                    {h === 38 && "Passo 4"}
-                    {h === 37 && "Passo 5"}
-                    {h === 36 && "Passo 6 (36h)"}
+                  <div className="font-extrabold text-[10px] uppercase tracking-tighter text-slate-400">
+                    {h === 44 && "Base (44h)"}
+                    {h === 42 && "PEC 60d (42h)"}
+                    {h === 40 && "PEC 12m (40h)"}
+                    {h === 39 && "Passo 4 (39h)"}
+                    {h === 38 && "Passo 5 (38h)"}
+                    {h === 37 && "Passo 6 (37h)"}
+                    {h === 36 && "Meta 36h"}
                   </div>
                   <div className={cn(
                     "text-[9px] font-bold uppercase tracking-wider mt-0.5",
@@ -95,7 +96,7 @@ export function InterlockingPanel({ lastValidHours, currentHoursSelection, onRes
                   )}>
                     {isLastValid && "✓ Último Valido"}
                     {isClickTarget && "⚠ Salto Detectado"}
-                    {isNextAllowed && "🔓 Próximo Permitido"}
+                    {isNextAllowed && "🔓 Próximo"}
                   </div>
                 </div>
               </div>

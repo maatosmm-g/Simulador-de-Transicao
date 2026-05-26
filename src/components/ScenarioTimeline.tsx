@@ -15,7 +15,7 @@ export function ScenarioTimeline({ params, strategies, lastValidHours, currentHo
   const { INTENSITY_ABSORPTION } = MODEL_CALIBRATION;
 
   // Lista sequencial estática para guiar a progressão visual
-  const SEQ = useMemo(() => [44, 40, 39, 38, 37, 36], []);
+  const SEQ = useMemo(() => [44, 42, 40, 39, 38, 37, 36], []);
 
   const timelineData = useMemo(() => {
     const boost = strategies.reduce((acc, s) => acc + (s.active ? s.productivityBoost : 0), 0);
@@ -49,8 +49,12 @@ export function ScenarioTimeline({ params, strategies, lastValidHours, currentHo
         label = "Equilíbrio Base";
         color = "text-slate-400 border-slate-200 bg-slate-50";
         bgColor = "bg-slate-400";
+      } else if (hours === 42) {
+        label = "Corte PEC (60 Dias)";
+        color = "text-sky-600 border-sky-100 bg-sky-50";
+        bgColor = "bg-sky-500";
       } else if (hours === 40) {
-        label = "Leve Pressão";
+        label = "Meta PEC (12 Meses)";
         color = "text-emerald-500 border-emerald-100 bg-emerald-50";
         bgColor = "bg-emerald-500";
       } else if (hours === 39) {

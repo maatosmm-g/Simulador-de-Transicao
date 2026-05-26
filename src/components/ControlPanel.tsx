@@ -77,23 +77,32 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
           <div className="space-y-3 pt-2">
             <label className="text-[11px] font-black text-slate-700 uppercase tracking-tight">Meta de Jornada</label>
             <div className="flex gap-2 flex-wrap">
-              {[44, 40, 39, 38, 37, 36].map((h) => {
+              {[44, 42, 40, 39, 38, 37, 36].map((h) => {
                 const isActive = currentHoursSelection === h;
                 const isThisInvalid = isInterlocked && isActive;
+                const isPecMarker = h === 42 || h === 40;
                 return (
                   <button
                     key={h}
                     onClick={() => onTargetHoursChange(h)}
                     className={cn(
-                      "flex-1 py-3 text-xs rounded-xl transition-all border touch-manipulation min-h-[44px] min-w-[50px] tabular-nums font-bold",
+                      "flex-1 py-3 text-xs rounded-xl transition-all border touch-manipulation min-h-[44px] min-w-[50px] tabular-nums font-bold relative",
                       isThisInvalid
                         ? "bg-rose-500 border-rose-600 font-black text-white shadow-lg shadow-rose-100 animate-pulse"
                         : isActive
                           ? "bg-indigo-600 border-indigo-700 font-black text-white shadow-lg shadow-indigo-100"
-                          : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 active:bg-slate-50"
+                          : isPecMarker
+                            ? "bg-sky-50/50 border-sky-200 text-sky-700 hover:bg-sky-50 hover:border-sky-300"
+                            : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 active:bg-slate-50"
                     )}
                   >
                     {h}h
+                    {isPecMarker && !isActive && (
+                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-sky-500"></span>
+                      </span>
+                    )}
                   </button>
                 );
               })}
