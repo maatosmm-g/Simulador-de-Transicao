@@ -166,8 +166,38 @@ export function FinancialImpact({
           </div>
         </div>
 
-        {/* Pilar 2: Custo das Mitigações */}
-        <div className="bg-white/[0.02] rounded-xl p-5 border border-white/5 flex flex-col justify-between">
+        {/* Pilar 2: Diagnóstico de Viabilidade */}
+        <div className={`p-5 rounded-xl border flex flex-col justify-between ${statusColor}`}>
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <StatusIcon size={14} />
+              <span className="text-[10px] font-black uppercase tracking-wider">
+                Veredito Operacional
+              </span>
+            </div>
+
+            <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none">
+              Diagnóstico Final do Caixa:
+            </span>
+            <div className="text-xl sm:text-2xl font-black tracking-tight mt-2 mb-3 uppercase">
+              {statusVeredito}
+            </div>
+
+            <p className="text-[11px] text-zinc-100 leading-relaxed font-medium">
+              {descricaoRecomendacao}
+            </p>
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase">
+            <span>Vendas Perdidas Restantes:</span>
+            <span className={vendasPerdidas > 0 ? "text-rose-400 tabular-nums animate-pulse" : "text-emerald-400 font-extrabold"}>
+              {vendasPerdidas > 0 ? `${Math.round(vendasPerdidas)} / mês` : "Nenhuma (0)"}
+            </span>
+          </div>
+        </div>
+
+        {/* Pilar 3: Custo das Mitigações */}
+        <div className="bg-white/[0.02] rounded-xl p-5 border border-white/5 flex flex-col justify-between animate-fadeIn">
           <div>
             <div className="flex items-center gap-2 mb-3 text-indigo-400">
               <Activity size={13} />
@@ -199,36 +229,6 @@ export function FinancialImpact({
                 {Math.round(vendasEvitadasMes)} vendas
               </span>
             </div>
-          </div>
-        </div>
-
-        {/* Pilar 3: Diagnóstico de Viabilidade */}
-        <div className={`p-5 rounded-xl border flex flex-col justify-between ${statusColor}`}>
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <StatusIcon size={14} />
-              <span className="text-[10px] font-black uppercase tracking-wider">
-                Veredito Operacional
-              </span>
-            </div>
-
-            <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none">
-              Diagnóstico Final do Caixa:
-            </span>
-            <div className="text-xl sm:text-2xl font-black tracking-tight mt-2 mb-3 uppercase">
-              {statusVeredito}
-            </div>
-
-            <p className="text-[11px] text-zinc-100 leading-relaxed font-medium">
-              {descricaoRecomendacao}
-            </p>
-          </div>
-
-          <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase">
-            <span>Vendas Perdidas Restantes:</span>
-            <span className={vendasPerdidas > 0 ? "text-rose-400 tabular-nums animate-pulse" : "text-emerald-400 font-extrabold"}>
-              {vendasPerdidas > 0 ? `${Math.round(vendasPerdidas)} / mês` : "Nenhuma (0)"}
-            </span>
           </div>
         </div>
 
