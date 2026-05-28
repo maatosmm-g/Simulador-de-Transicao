@@ -1,4 +1,5 @@
-import { RotateCcw } from 'lucide-react';
+import { useState } from 'react';
+import { RotateCcw, HelpCircle } from 'lucide-react';
 import { SimulationParameters, MODEL_CALIBRATION } from '@/src/constants';
 import { cn } from '@/src/lib/utils';
 
@@ -13,6 +14,10 @@ interface ControlPanelProps {
 }
 
 export function ControlPanel({ params, setParams, lastValidHours, isInterlocked, currentHoursSelection, onTargetHoursChange, onReset }: ControlPanelProps) {
+  const [showHelp, setShowHelp] = useState(false);
+  const [showHelpTicket, setShowHelpTicket] = useState(false);
+  const [showHelpFAC, setShowHelpFAC] = useState(false);
+  const [showHelpMargin, setShowHelpMargin] = useState(false);
   const { TAX_MULTIPLIER, WEEKS_PER_MONTH } = MODEL_CALIBRATION;
 
   const formatBR = (val: number) =>
@@ -97,8 +102,31 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
           </div>
 
           <div className="space-y-3 pt-2">
-            <label className="text-[11px] font-black text-slate-700 uppercase tracking-tight">Meta de Jornada</label>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-black text-slate-700 uppercase tracking-tight">Meta de Jornada</label>
+              <button
+                type="button"
+                onClick={() => setShowHelp(!showHelp)}
+                className="text-[10px] font-black text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-all cursor-pointer select-none bg-indigo-50 border border-indigo-100 hover:bg-indigo-100/70 px-2 py-0.5 rounded-lg active:scale-95"
+              >
+                <HelpCircle size={10} className="stroke-[3px]" />
+                Como simular?
+              </button>
+            </div>
+
+            {showHelp && (
+              <div className="bg-amber-500/[0.04] border border-amber-500/20 p-3 rounded-xl text-[10px] text-amber-900 font-medium leading-relaxed animate-fadeIn">
+                <span className="font-extrabold text-amber-700 block uppercase text-[8px] tracking-wider mb-0.5">
+                  Simulação Gradual Obrigatória:
+                </span>
+                A legislação exige transição gradual (reduzir degrau por degrau). O sistema impede "saltos" diretos (ex: de 44h para 36h) para simular o faturamento real e impacto gradual acumulado.
+                <span className="block mt-1 font-bold text-amber-700">
+                  Operação recomendada: 44h ➜ 42h ➜ 40h ... sequencialmente. Caso erre uma etapa ou trave a simulação, basta clicar no botão de reset para reiniciar o fluxo.
+                </span>
+              </div>
+            )}
+
+            <div className="flex gap-2 flex-wrap animate-fadeIn">
               {[44, 42, 40, 39, 38, 37, 36].map((h) => {
                 const isActive = currentHoursSelection === h;
                 const isThisInvalid = isInterlocked && isActive;
@@ -137,12 +165,31 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
           </div>
         </div>
 
-         {/* Ticket */}
-        <div className="pt-4 border-t border-slate-100 space-y-4">
-          <div className="space-y-3">
-            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
-              Ticket Médio (Faturamento)
-            </label>
+          {/* Ticket */}
+          <div className="pt-4 border-t border-slate-100 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
+                Ticket Médio (Faturamento)
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowHelpTicket(!showHelpTicket)}
+                className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-all cursor-pointer bg-indigo-50/70 hover:bg-indigo-100 border border-indigo-100 px-2 py-0.5 rounded-lg active:scale-95"
+              >
+                <HelpCircle size={10} className="stroke-[3px]" />
+                Como escolher?
+              </button>
+            </div>
+
+            {showHelpTicket && (
+              <div className="bg-indigo-500/[0.03] border border-indigo-500/15 p-3 rounded-xl text-[10px] text-zinc-600 font-medium leading-relaxed space-y-1 animate-fadeIn">
+                <span className="font-extrabold text-indigo-700 block uppercase text-[8px] tracking-wider">
+                  Valor Médio das Transações:
+                </span>
+                <p>É o faturamento total do último mês dividido pelo número total de vendas. Se cada cliente gasta, em média, R$ 160 por compra, digite 160.</p>
+              </div>
+            )}
+
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">R$</span>
               <input
@@ -166,10 +213,34 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
                 Aproveitamento Comercial
               </label>
-              <span className="text-xs font-black text-indigo-600 tabular-nums">
-                {Math.round(params.commercialEfficiency * 100)}%
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowHelpFAC(!showHelpFAC)}
+                  className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-all cursor-pointer bg-indigo-50/70 hover:bg-indigo-100 border border-indigo-100 px-2 py-0.5 rounded-lg active:scale-95"
+                >
+                  <HelpCircle size={10} className="stroke-[3px]" />
+                  Como escolher?
+                </button>
+                <span className="text-xs font-black text-indigo-600 tabular-nums">
+                  {Math.round(params.commercialEfficiency * 100)}%
+                </span>
+              </div>
             </div>
+
+            {showHelpFAC && (
+              <div className="bg-indigo-500/[0.03] border border-indigo-500/15 p-3 rounded-xl text-[10px] text-zinc-600 font-medium leading-relaxed space-y-2 animate-fadeIn">
+                <span className="font-extrabold text-indigo-700 block uppercase text-[8px] tracking-wider">
+                  Guia do Fator de Aproveitamento Comercial (FAC):
+                </span>
+                <p>Estima a porcentagem de tempo que a equipe passa executando e atenta a atividades puramente comerciais.</p>
+                <ul className="list-disc list-inside text-[9px] text-slate-500 space-y-1">
+                  <li><span className="font-bold text-zinc-700">20% a 30% (Recomendado/Shoppings):</span> Para lojas com tráfego oscilante, pausas regulamentares, arrumação de estoque e ociosidade natural.</li>
+                  <li><span className="font-bold text-zinc-700">40% a 60% (Alta Densidade):</span> Mercados, drogarias e restaurantes de alto fluxo diário com pouca ociosidade.</li>
+                  <li><span className="font-bold text-zinc-700">70% a 90% (Serviços):</span> Consultórios de atendimento individual agendado por hora.</li>
+                </ul>
+              </div>
+            )}
             
             <input
               type="range"
@@ -249,10 +320,35 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
                     Margem de Venda
                   </label>
-                  <span className="text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100 italic">
-                    {Math.round(params.grossMargin * 100)}% real
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowHelpMargin(!showHelpMargin)}
+                      className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-all cursor-pointer bg-indigo-50/70 hover:bg-indigo-100 border border-indigo-100 px-2 py-0.5 rounded-lg active:scale-95"
+                    >
+                      <HelpCircle size={10} className="stroke-[3px]" />
+                      Como escolher?
+                    </button>
+                    <span className="text-[11px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg border border-indigo-100 italic">
+                      {Math.round(params.grossMargin * 100)}% real
+                    </span>
+                  </div>
                 </div>
+
+                {showHelpMargin && (
+                  <div className="bg-indigo-500/[0.03] border border-indigo-500/15 p-3 rounded-xl text-[10px] text-zinc-600 font-medium leading-relaxed space-y-2 my-2 animate-fadeIn">
+                    <span className="font-extrabold text-indigo-700 block uppercase text-[8px] tracking-wider">
+                      Margem Bruta Recomendada:
+                    </span>
+                    <p>Qual a margem média que seu negócio obtém descontando apenas os custos diretos das mercadorias vendidas (CMV) ou insumos diretos?</p>
+                    <ul className="list-disc list-inside text-[9px] text-slate-500 space-y-1">
+                      <li><span className="font-bold text-zinc-700">20% a 30%:</span> Eletrônicos, autopeças, atacados e redes de mercado.</li>
+                      <li><span className="font-bold text-zinc-700">40% a 65%:</span> Vestuário, calçados, franquias de moda, decoração e brinquedos.</li>
+                      <li><span className="font-bold text-zinc-700">60% a 80%:</span> Alimentação/restaurantes, serviços recorrentes ou estética.</li>
+                    </ul>
+                  </div>
+                )}
+
                 <p className="text-[9px] text-slate-400 font-bold mt-1 uppercase tracking-wider italic">
                   Margem de Venda média ≈20% a 40%
                 </p>
@@ -342,6 +438,5 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
           </div>
         </div>
       </div>
-    </div>
   );
 }
