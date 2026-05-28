@@ -192,8 +192,8 @@ export default function App() {
 
     const isReduction = effectiveTargetHours < params.currentHours;
     
-    // Converte a perda semanal de clientes diretamente para a base mensal exigida pelas interfaces
-    const clientLoss = isReduction ? Math.round(realisticClientLossWeekly * WEEKS_PER_MONTH) : 0;
+    // Converte a perda semanal de clientes diretamente para a base mensal exigida pelas interfaces, considerando o Fator de Aproveitamento Comercial (FAC)
+    const clientLoss = isReduction ? Math.round(realisticClientLossWeekly * WEEKS_PER_MONTH * params.commercialEfficiency) : 0;
 
     // --- Cálculo RAW (Sem mitigações) convertido para base mensal ---
     const deficitHRaw = isReduction ? Math.max(0, baselineH - futureH) : 0;
@@ -209,7 +209,7 @@ export default function App() {
       theoreticalLossRaw * abandonmentRateRaw,
       baselineAttendances * MAX_LOSS_RATIO
     );
-    const clientLossRaw = isReduction ? Math.round(realisticClientLossRawWeekly * WEEKS_PER_MONTH) : 0;
+    const clientLossRaw = isReduction ? Math.round(realisticClientLossRawWeekly * WEEKS_PER_MONTH * params.commercialEfficiency) : 0;
 
     const capacityRetention = baselineH > 0 ? (mitigatedH / baselineH) * 100 : 100;
 
@@ -440,6 +440,7 @@ export default function App() {
               totalBoost={results.totalBoost}
               totalClientsLost={results.clientLoss}
               isCompact={true}
+              params={params}
             />
           </div>
 

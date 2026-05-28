@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { CheckCircle2, XCircle, Coins, HeartCrack, Activity } from 'lucide-react';
 import { cn } from '@/src/lib/utils';
+import { SimulationParameters } from '@/src/constants';
 
 interface FinancialImpactProps {
   lostClientsWeekly: number;       // Agora herda o valor já mensalizado pelo App.tsx
@@ -16,6 +17,7 @@ interface FinancialImpactProps {
   totalBoost?: number;             
   totalClientsLost?: number;
   isCompact?: boolean;
+  params: SimulationParameters;
 }
 
 export function FinancialImpact({
@@ -27,6 +29,7 @@ export function FinancialImpact({
   targetHours,
   grossMargin = 0.40,
   isCompact = false,
+  params,
 }: FinancialImpactProps) {
 
   // Como o App.tsx já envia os dados consolidados no mês, garantimos segurança contra valores nulos
@@ -34,6 +37,11 @@ export function FinancialImpact({
   const safeLostClientsRaw = Math.max(0, lostClientsWeeklyRaw ?? safeLostClientsMitigated);
   const safeAvgTicket = Math.max(0, avgTicket || 0);
   const custoAdicional = Math.max(0, mitigationMonthlyCost || 0);
+
+  // --- Cálculos de Ritmo Factual de Vendas por Hora com FAC ---
+  const rhythmCurrent = params.avgProductivity * params.commercialEfficiency;
+  const rhythmNew = targetHours > 0 ? (currentHours / targetHours) * rhythmCurrent : rhythmCurrent;
+  const effortIncreasePct = rhythmCurrent > 0 ? ((rhythmNew - rhythmCurrent) / rhythmCurrent) * 100 : 0;
 
   // 1. Pilar de Perda Pura (Sem nenhuma ação)
   const monthlyLossRaw = safeLostClientsRaw * safeAvgTicket;
@@ -109,37 +117,52 @@ export function FinancialImpact({
         isCompact ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-3"
       )}>
         
-        {/* Pilar 1: Perda Máxima sem Ações */}
-        <div className="bg-white/[0.02] rounded-xl p-5 border border-white/5 flex flex-col justify-between">
+        {/* Pilar 1: Simplicidade e Ritmo Factual de Vendas */}
+        <div className="bg-white/[0.02] rounded-xl p-5 border border-white/5 flex flex-col justify-between font-bold">
           <div>
-            <div className="flex items-center gap-2 mb-3 text-rose-400">
-              <HeartCrack size={13} />
+            <div className="flex items-center gap-2 mb-3 text-indigo-400 font-bold">
+              <Activity size={13} />
               <span className="text-[10px] font-black uppercase tracking-wider">
-                Margem em Risco Bruta
+                Exigência de Ritmo de Venda
               </span>
             </div>
             
             <span className="block text-[9px] font-bold text-slate-400 uppercase tracking-wide leading-none">
-              Ausência total de ferramentas:
+              Vendas exigidas por hora-colaborador:
             </span>
-            <div className="text-2xl sm:text-3xl font-black text-rose-400 tracking-tight mt-2 mb-3 tabular-nums">
-              -{currencyFormatter.format(monthlyProfitLossRaw)}
+            <div className="text-2xl sm:text-3xl font-black text-indigo-400 tracking-tight mt-2 mb-3 tabular-nums">
+              {rhythmNew.toFixed(2)} <span className="text-xs font-bold text-slate-500">vendas/h</span>
             </div>
 
-            <p className="text-[11px] text-slate-400 leading-relaxed font-medium">
-              Impacto financeiro máximo direto no lucro do caixa caso as horas operacionais sejam cortadas sem mitigações.
+            <p className="text-[11px] text-zinc-300 leading-relaxed font-semibold">
+              Para faturamento constante, a equipe precisa de <span className="text-white font-extrabold">{rhythmNew.toFixed(2)} venda(s) realizada(s)</span> por hora ativa de cada funcionário.
             </p>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-white/5 flex flex-col gap-1 text-[10px] font-bold text-slate-500 uppercase">
-            <div className="flex justify-between">
-              <span>Faturamento Total:</span>
-              <span className="text-slate-300 tabular-nums">{currencyFormatter.format(monthlyLossRaw)}</span>
+          <div className="mt-4 pt-3 border-t border-white/5 flex flex-col gap-2 text-[10px] font-bold text-slate-500 uppercase">
+            <div className="flex justify-between items-center bg-white/[0.01] p-1.5 rounded-lg border border-white/5">
+              <span className="text-slate-400">Sob {currentHours}h (Base):</span>
+              <span className="text-slate-300 font-extrabold tabular-nums">
+                {rhythmCurrent.toFixed(2)} vendas/h ({currencyFormatter.format(rhythmCurrent * safeAvgTicket)}/h)
+              </span>
             </div>
-            <div className="flex justify-between">
-              <span>Vendas Perdidas / mês:</span>
-              <span className="text-slate-300 tabular-nums">{Math.round(vendasPerdidasCenarioPuro)} vendas</span>
+            
+            <div className="flex justify-between items-center bg-indigo-500/5 p-1.5 rounded-lg border border-indigo-500/10">
+              <span className="text-indigo-400">Sob {targetHours}h (Nova):</span>
+              <span className="text-indigo-400 font-extrabold tabular-nums">
+                {rhythmNew.toFixed(2)} vendas/h ({currencyFormatter.format(rhythmNew * safeAvgTicket)}/h)
+              </span>
             </div>
+
+            {targetHours < currentHours && effortIncreasePct > 0 ? (
+              <div className="text-[9px] text-center text-amber-400 font-black tracking-wide leading-relaxed bg-amber-500/10 border border-amber-500/20 rounded-lg p-1 animate-pulse">
+                A EQUIPE PRECISARÁ DE +{effortIncreasePct.toFixed(0)}% DE EFICIÊNCIA DE VENDAS POR HORA!
+              </div>
+            ) : (
+              <div className="text-[9px] text-center text-slate-400 font-black tracking-wide bg-slate-800/20 rounded-lg p-1">
+                EFICIÊNCIA COMERCIAL DE REFERÊNCIA
+              </div>
+            )}
           </div>
         </div>
 

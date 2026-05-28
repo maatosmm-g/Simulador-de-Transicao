@@ -22,7 +22,7 @@ export function SalesTargetCard({ params, strategies, isLocked }: SalesTargetCar
   const baselineHours = params.employeeCount * params.currentHours;
   const currentTargetHours = params.employeeCount * effectiveTargetHours;
 
-  const baselineSalesWeekly = baselineHours * params.avgProductivity * params.avgTicket;
+  const baselineSalesWeekly = baselineHours * params.avgProductivity * params.avgTicket * params.commercialEfficiency;
   const baselineSalesMonthly = baselineSalesWeekly * WEEKS_PER_MONTH; // Alinhado com as 4.3333 semanas reais
 
   // Densidade de vendas necessária por hora ativa para sustentar o faturamento base

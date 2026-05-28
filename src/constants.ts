@@ -9,6 +9,7 @@ export interface SimulationParameters {
   avgSalary: number;
   taxRegime: TaxRegime;
   grossMargin: number; // Margem de contribuição (0-1)
+  commercialEfficiency: number; // Fator de aproveitamento comercial (0-1, padrão 0.25)
 }
 
 export interface MitigationStrategy {
@@ -95,6 +96,7 @@ export const INITIAL_PARAMETERS: SimulationParameters = {
   avgSalary: 1621,
   taxRegime: 'simples',
   grossMargin: 0.20, // Inicializado em 20% real conforme exibido nas telas de simulação de margem
+  commercialEfficiency: 0.25, // Fator de aproveitamento comercial (coeficiente para pausas, baixa conversão, estoque, etc)
 };
 
 export const MITIGATION_STRATEGIES: MitigationStrategy[] = [

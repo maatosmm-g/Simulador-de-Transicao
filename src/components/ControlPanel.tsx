@@ -137,7 +137,7 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
           </div>
         </div>
 
-        {/* Ticket */}
+         {/* Ticket */}
         <div className="pt-4 border-t border-slate-100 space-y-4">
           <div className="space-y-3">
             <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
@@ -157,6 +157,35 @@ export function ControlPanel({ params, setParams, lastValidHours, isInterlocked,
                 }}
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-sm font-black text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-right min-h-[48px] tabular-nums transition-all"
               />
+            </div>
+          </div>
+
+          {/* Aproveitamento Comercial (FAC) */}
+          <div className="space-y-3 pt-4 border-t border-dashed border-slate-200">
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] leading-none">
+                Aproveitamento Comercial
+              </label>
+              <span className="text-xs font-black text-indigo-600 tabular-nums">
+                {Math.round(params.commercialEfficiency * 100)}%
+              </span>
+            </div>
+            
+            <input
+              type="range"
+              min="0.10"
+              max="1.00"
+              step="0.05"
+              value={params.commercialEfficiency}
+              onChange={(e) => setParams({ ...params, commercialEfficiency: parseFloat(e.target.value) })}
+              className="w-full accent-indigo-600 h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+            />
+
+            <div className="bg-slate-50 border border-slate-200/60 p-2.5 rounded-xl text-[10px] text-slate-500 font-medium leading-relaxed">
+              <span className="font-extrabold text-slate-700 block uppercase text-[8px] tracking-wider mb-0.5">
+                Ajuste de Improdutividade Natural:
+              </span>
+              Desconta tempo para: operação física, pausas regulamentares, baixa conversão, horários vazios, estoque/reposição, limpeza, caixa e atendimento geral.
             </div>
           </div>
 
